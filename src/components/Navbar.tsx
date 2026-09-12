@@ -11,6 +11,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSecurity }) => {
 
   const getRoleBadge = (role?: string) => {
     switch (role?.toLowerCase()) {
+      case 'platform_admin':
+        return (
+          <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[#776de8]/20 text-[#bbb3ff] border border-[#776de8]/40">
+            Platform Admin
+          </span>
+        );
       case 'admin':
         return (
           <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
@@ -19,13 +25,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSecurity }) => {
         );
       case 'finance':
         return (
-          <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+          <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             Finanzas
           </span>
         );
+      case 'operations':
       default:
         return (
-          <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
             Operaciones
           </span>
         );

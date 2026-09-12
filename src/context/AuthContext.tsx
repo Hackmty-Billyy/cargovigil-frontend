@@ -11,7 +11,6 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<LoginResponse>;
   verifyTOTP: (code: string) => Promise<LoginResponse>;
   cancelMFA: () => void;
-  register: (email: string, password: string, role?: string) => Promise<void>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -143,17 +142,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
   };
 
-  const register = async (email: string, password: string, role = 'operations') => {
-    setError(null);
-    try {
-      await api.register(email, password, role);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error al registrar usuario';
-      setError(message);
-      throw err;
-    }
-  };
-
   const logout = async () => {
     const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
     if (storedRefreshToken) {
@@ -204,7 +192,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         verifyTOTP,
         cancelMFA,
-        register,
         logout,
         logoutAll,
         refreshProfile,

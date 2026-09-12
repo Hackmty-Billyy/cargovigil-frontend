@@ -1,7 +1,8 @@
-export type UserRole = 'admin' | 'operations' | 'finance' | string;
+export type UserRole = 'platform_admin' | 'admin' | 'operations' | 'finance' | string;
 
 export interface UserProfile {
   id: string;
+  company_id: string;
   email: string;
   role_id: number;
   role_name: UserRole;
