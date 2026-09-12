@@ -30,7 +30,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider rounded-md bg-indigo-500/15 text-indigo-400 border border-indigo-500/25">
+              <span className="px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider rounded-md bg-[#776de8]/15 text-[#776de8] border border-[#776de8]/25">
                 Rol: {user?.role_name?.toUpperCase()}
               </span>
               <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
@@ -55,7 +55,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
                   : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border-amber-500/30'
               }`}
             >
-              <KeyRound className="w-4 h-4 text-indigo-400" />
+              <KeyRound className="w-4 h-4 text-[#776de8]" />
               <span>{user?.totp_enabled ? 'Ajustes de 2FA' : 'Activar 2FA'}</span>
             </button>
           </div>

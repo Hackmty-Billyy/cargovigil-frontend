@@ -37,7 +37,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSecurity }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/10">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#776de8] to-[#bbb3ff] flex items-center justify-center shadow-lg shadow-[#776de8]/25 ring-1 ring-white/10">
             <Truck className="w-5 h-5 text-white" />
           </div>
           <div>
