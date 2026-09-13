@@ -16,7 +16,7 @@ import type {
   InviteTeammateResponse,
 } from '../types/company';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.cargovigil.tech';
 
 class ApiClient {
   private refreshPromise: Promise<LoginResponse> | null = null;
