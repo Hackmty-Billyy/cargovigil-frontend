@@ -184,6 +184,7 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
         distance_km: selectedRoute.distance_km || 350,
         cargo_weight_tons: cargoWeightTons,
         agreed_price: agreedPrice || 1,
+        currency,
       });
       setProjection(res);
     } catch (err: any) {
@@ -191,13 +192,13 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
     } finally {
       setCalculatingProjection(false);
     }
-  }, [accessToken, selectedVehicle, selectedRoute, cargoWeightTons, agreedPrice]);
+  }, [accessToken, selectedVehicle, selectedRoute, cargoWeightTons, agreedPrice, currency]);
 
   useEffect(() => {
     if (selectedVehicle && selectedRoute && agreedPrice > 0) {
       runProjection();
     }
-  }, [vehicleId, routeId, cargoWeightTons, agreedPrice]);
+  }, [vehicleId, routeId, cargoWeightTons, agreedPrice, currency]);
 
   const handleConfirmAndStart = async (e: React.FormEvent) => {
     e.preventDefault();
