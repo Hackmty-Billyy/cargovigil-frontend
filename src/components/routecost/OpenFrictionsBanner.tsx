@@ -37,7 +37,7 @@ export const OpenFrictionsBanner: React.FC<OpenFrictionsBannerProps> = ({
 
   if (open.length === 0) {
     return (
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-950/40 via-slate-900/60 to-emerald-950/20 border border-emerald-500/30 p-5 shadow-lg">
+      <div className="rounded-xl bg-gray-900 border border-gray-800 p-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
@@ -69,7 +69,7 @@ export const OpenFrictionsBanner: React.FC<OpenFrictionsBannerProps> = ({
   );
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-950/40 via-slate-900/70 to-red-950/20 border border-amber-500/30 p-5 shadow-lg">
+    <div className="rounded-xl bg-gray-900 border border-gray-800 p-5">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0">

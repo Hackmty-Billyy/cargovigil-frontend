@@ -165,7 +165,7 @@ export const RoutesManager: React.FC = () => {
           {canWrite && (
             <button
               onClick={openCreateModal}
-              className="px-4 py-2 rounded-xl bg-[#776de8] hover:bg-[#6c61e4] text-white font-semibold text-xs shadow-lg shadow-[#776de8]/20 flex items-center gap-2 transition cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-[#776de8] hover:bg-[#6c61e4] text-white font-semibold text-xs  flex items-center gap-2 transition cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Nueva Ruta</span>
@@ -324,7 +324,7 @@ export const RoutesManager: React.FC = () => {
                 onClick={() => setIsModalOpen(false)}
                 className="text-slate-400 hover:text-white text-lg font-semibold cursor-pointer"
               >
-                ✕
+                
               </button>
             </div>
 
@@ -398,7 +398,7 @@ export const RoutesManager: React.FC = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-[#776de8] hover:bg-[#6c61e4] disabled:opacity-50 transition shadow-lg shadow-[#776de8]/20 cursor-pointer"
+                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-[#776de8] hover:bg-[#6c61e4] disabled:opacity-50 transition  cursor-pointer"
                 >
                   {submitting ? 'Guardando...' : editingRoute ? 'Actualizar' : 'Crear Ruta'}
                 </button>

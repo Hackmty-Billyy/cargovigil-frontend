@@ -96,7 +96,7 @@ export const MarginImpactPanel: React.FC<MarginImpactPanelProps> = ({
             setNoDataRouteId(null);
             setShowSimulator(true);
           }}
-          className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-amber-500/20 transition cursor-pointer self-start sm:self-auto"
+          className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer self-start sm:self-auto"
         >
           <Sliders className="w-4 h-4" />
           Simulador de Impacto
@@ -121,7 +121,7 @@ export const MarginImpactPanel: React.FC<MarginImpactPanelProps> = ({
                 key={impact.id}
                 className={`rounded-2xl border p-5 shadow-lg transition ${
                   isNegative
-                    ? 'border-red-500/30 bg-gradient-to-br from-red-950/20 via-slate-900/80 to-slate-950'
+                    ? 'border-red-800/60 bg-gray-800'
                     : 'border-slate-800 bg-slate-900/80'
                 }`}
               >
@@ -224,10 +224,10 @@ export const MarginImpactPanel: React.FC<MarginImpactPanelProps> = ({
                   <label className="block text-xs font-semibold text-slate-300 mb-1">Tipo de Combustible</label>
                   <select value={simFuelType} onChange={(e) => { setSimFuelType(e.target.value as FuelType); setSimResult(null); setNoDataRouteId(null); }}
                     className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500">
-                    <option value="diesel">⛽ Diésel</option>
-                    <option value="bunker_c">🛢️ Bunker C</option>
-                    <option value="marine_gasoil">⚓ Marine Gas Oil</option>
-                    <option value="jet_a1">✈️ Jet A-1</option>
+                    <option value="diesel"> Diésel</option>
+                    <option value="bunker_c"> Bunker C</option>
+                    <option value="marine_gasoil"> Marine Gas Oil</option>
+                    <option value="jet_a1"> Jet A-1</option>
                   </select>
                 </div>
                 <div>
@@ -286,7 +286,7 @@ export const MarginImpactPanel: React.FC<MarginImpactPanelProps> = ({
 
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
                 <button type="button" onClick={() => setShowSimulator(false)} className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition cursor-pointer">Cerrar</button>
-                <button type="submit" disabled={isSimulating || routes.length === 0} className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold shadow-lg shadow-amber-500/20 transition cursor-pointer disabled:opacity-50 flex items-center gap-2">
+                <button type="submit" disabled={isSimulating || routes.length === 0} className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-white text-xs font-semibold transition cursor-pointer disabled:opacity-50 flex items-center gap-2">
                   {isSimulating ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Simulando...</> : <><ChevronRight className="w-3.5 h-3.5" /> Simular Impacto</>}
                 </button>
               </div>

@@ -364,7 +364,7 @@ export const FrictionsManager: React.FC<FrictionsManagerProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#776de8] to-[#8f85f3] hover:from-[#6b61db] hover:to-[#7f74ea] text-white text-xs font-semibold shadow-lg shadow-[#776de8]/25 transition cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Cerrando...' : 'Cerrar fricción'}
                 </button>

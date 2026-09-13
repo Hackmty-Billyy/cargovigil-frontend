@@ -33,9 +33,9 @@ const AppContent: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#776de8] flex flex-col items-center justify-center text-white">
-        <div className="w-10 h-10 border-3 border-white/30 border-t-white rounded-full animate-spin mb-4" />
-        <p className="text-xs font-medium tracking-wide">Cargando CargoVigil...</p>
+      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center text-white">
+        <div className="w-8 h-8 border-2 border-gray-700 border-t-blue-500 rounded-full animate-spin mb-3" />
+        <p className="text-xs font-medium text-gray-400">Cargando CargoVigil...</p>
       </div>
     );
   }
@@ -65,22 +65,20 @@ const AppContent: React.FC = () => {
   const isLoginPage = currentPath === '/login';
 
   return (
-    <div className="min-h-screen flex flex-col selection:bg-[#776de8] selection:text-white font-sans">
+    <div className="min-h-screen flex flex-col bg-gray-950 font-sans">
       {/* Step 2 MFA Modal if login requires TOTP */}
       {pendingMFAToken && <TOTPVerificationModal />}
 
       {isLoginPage ? (
         <LoginPage onBackToHome={() => navigateTo('/')} />
       ) : (
-        <div className="min-h-screen flex flex-col bg-white">
-          <div className="w-full bg-gradient-to-b from-[#776de8] via-[#8f85f3] to-[#bbb3ff]">
-            <LandingNavbar
-              activeSection={activeSection}
-              setActiveSection={setActiveSection}
-              onOpenLogin={() => navigateTo('/login')}
-            />
-            <LandingPage onOpenLogin={() => navigateTo('/login')} />
-          </div>
+        <div className="min-h-screen flex flex-col bg-gray-950">
+          <LandingNavbar
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+            onOpenLogin={() => navigateTo('/login')}
+          />
+          <LandingPage onOpenLogin={() => navigateTo('/login')} />
         </div>
       )}
     </div>

@@ -189,7 +189,7 @@ export const ContractsManager: React.FC = () => {
             <button
               onClick={openCreateModal}
               disabled={clients.length === 0}
-              className="px-4 py-2 rounded-xl bg-[#776de8] hover:bg-[#6c61e4] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-xs shadow-lg shadow-[#776de8]/20 flex items-center gap-2 transition cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-[#776de8] hover:bg-[#6c61e4] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-xs  flex items-center gap-2 transition cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Nuevo Contrato</span>
@@ -305,7 +305,7 @@ export const ContractsManager: React.FC = () => {
                       <td className="py-3.5 px-4 text-slate-400 text-[11px]">
                         <div className="flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                          <span>{startsText} ➔ {endsText}</span>
+                          <span>{startsText}  {endsText}</span>
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-center">
@@ -371,7 +371,7 @@ export const ContractsManager: React.FC = () => {
                 onClick={() => setIsModalOpen(false)}
                 className="text-slate-400 hover:text-white text-lg font-semibold cursor-pointer"
               >
-                ✕
+                
               </button>
             </div>
 
@@ -463,7 +463,7 @@ export const ContractsManager: React.FC = () => {
                 <button
                   type="submit"
                   disabled={submitting || !formClientId}
-                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-[#776de8] hover:bg-[#6c61e4] disabled:opacity-50 transition shadow-lg shadow-[#776de8]/20 cursor-pointer"
+                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-[#776de8] hover:bg-[#6c61e4] disabled:opacity-50 transition  cursor-pointer"
                 >
                   {submitting ? 'Guardando...' : editingContract ? 'Actualizar' : 'Registrar Contrato'}
                 </button>

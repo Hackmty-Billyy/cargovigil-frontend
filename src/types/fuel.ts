@@ -5,10 +5,10 @@
 export type FuelType = 'diesel' | 'bunker_c' | 'marine_gasoil' | 'jet_a1';
 
 export const FUEL_TYPE_LABELS: Record<FuelType, string> = {
-  diesel: '⛽ Diésel (Carretero)',
-  bunker_c: '🛢️ Bunker C (Marina Pesada)',
-  marine_gasoil: '⚓ Marine Gas Oil (MGO)',
-  jet_a1: '✈️ Jet A-1 (Aviación)',
+  diesel: 'Diésel (Carretero)',
+  bunker_c: 'Bunker C (Marina Pesada)',
+  marine_gasoil: 'Marine Gas Oil (MGO)',
+  jet_a1: 'Jet A-1 (Aviación)',
 };
 
 export const FUEL_TYPE_COLORS: Record<FuelType, string> = {

@@ -144,7 +144,7 @@ export const BankAccountsManager: React.FC<BankAccountsManagerProps> = ({
 
         <button
           onClick={handleOpenCreate}
-          className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#776de8] to-[#8f85f3] hover:from-[#6b61db] hover:to-[#7f74ea] text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-[#776de8]/25 transition cursor-pointer self-start sm:self-auto"
+          className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-2 transition cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Nueva Cuenta Bancaria</span>
@@ -179,7 +179,7 @@ export const BankAccountsManager: React.FC<BankAccountsManagerProps> = ({
                 !acc.is_active
                   ? 'border-slate-800 bg-slate-900/30 opacity-60'
                   : isUnderMin
-                  ? 'border-amber-500/40 bg-gradient-to-br from-amber-950/20 via-slate-900/90 to-slate-950'
+                  ? 'border-amber-800/60 bg-gray-800'
                   : 'border-slate-800 bg-slate-900/80 hover:border-slate-700'
               }`}
             >
@@ -242,7 +242,7 @@ export const BankAccountsManager: React.FC<BankAccountsManagerProps> = ({
 
                 {isUnderMin && acc.is_active && (
                   <div className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] flex items-center gap-1.5 mb-2">
-                    <span>⚠️ Saldo inferior a la reserva de seguridad requerida</span>
+                    <span> Saldo inferior a la reserva de seguridad requerida</span>
                   </div>
                 )}
               </div>
@@ -418,7 +418,7 @@ export const BankAccountsManager: React.FC<BankAccountsManagerProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#776de8] to-[#8f85f3] hover:from-[#6b61db] hover:to-[#7f74ea] text-white text-xs font-semibold shadow-lg shadow-[#776de8]/25 transition cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Guardando...' : editingAccount ? 'Actualizar Cuenta' : 'Crear Cuenta'}
                 </button>

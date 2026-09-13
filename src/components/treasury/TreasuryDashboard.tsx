@@ -113,7 +113,7 @@ export const TreasuryDashboard: React.FC = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Top Banner with Module 1 Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/40 border border-slate-800 p-6 shadow-xl">
+      <div className="rounded-xl bg-gray-900 border border-gray-800 p-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -221,7 +221,7 @@ export const TreasuryDashboard: React.FC = () => {
           onClick={() => setActiveSubTab('forecast')}
           className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shrink-0 ${
             activeSubTab === 'forecast'
-              ? 'bg-[#776de8] text-white shadow-lg shadow-[#776de8]/20'
+              ? 'bg-[#776de8] text-white '
               : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
           }`}
         >
@@ -233,7 +233,7 @@ export const TreasuryDashboard: React.FC = () => {
           onClick={() => setActiveSubTab('accounts')}
           className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shrink-0 ${
             activeSubTab === 'accounts'
-              ? 'bg-[#776de8] text-white shadow-lg shadow-[#776de8]/20'
+              ? 'bg-[#776de8] text-white '
               : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
           }`}
         >
@@ -245,7 +245,7 @@ export const TreasuryDashboard: React.FC = () => {
           onClick={() => setActiveSubTab('invoices')}
           className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shrink-0 ${
             activeSubTab === 'invoices'
-              ? 'bg-[#776de8] text-white shadow-lg shadow-[#776de8]/20'
+              ? 'bg-[#776de8] text-white '
               : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
           }`}
         >
@@ -257,7 +257,7 @@ export const TreasuryDashboard: React.FC = () => {
           onClick={() => setActiveSubTab('expenses')}
           className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shrink-0 ${
             activeSubTab === 'expenses'
-              ? 'bg-[#776de8] text-white shadow-lg shadow-[#776de8]/20'
+              ? 'bg-[#776de8] text-white '
               : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
           }`}
         >

@@ -162,7 +162,7 @@ export const SurchargeRulesManager: React.FC<SurchargeRulesManagerProps> = ({
           </button>
           <button
             onClick={handleOpenCreate}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-amber-500/20 transition cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-white text-xs font-semibold flex items-center gap-1.5  transition cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Nueva Regla
@@ -198,7 +198,7 @@ export const SurchargeRulesManager: React.FC<SurchargeRulesManagerProps> = ({
                 !rule.is_active
                   ? 'border-slate-800 bg-slate-900/30 opacity-60'
                   : hasAlert
-                  ? 'border-amber-500/40 bg-gradient-to-br from-amber-950/30 via-slate-900/80 to-slate-950'
+                  ? 'border-amber-800/60 bg-gray-800'
                   : 'border-slate-800 bg-slate-900/80 hover:border-slate-700'
               }`}
             >
@@ -206,7 +206,7 @@ export const SurchargeRulesManager: React.FC<SurchargeRulesManagerProps> = ({
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="flex items-center gap-2.5">
                     <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-xl shrink-0">
-                      {rule.fuel_type === 'diesel' ? '⛽' : rule.fuel_type === 'bunker_c' ? '🛢️' : rule.fuel_type === 'marine_gasoil' ? '⚓' : '✈️'}
+                      {rule.fuel_type === 'diesel' ? '' : rule.fuel_type === 'bunker_c' ? '' : rule.fuel_type === 'marine_gasoil' ? '' : ''}
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
@@ -328,10 +328,10 @@ export const SurchargeRulesManager: React.FC<SurchargeRulesManagerProps> = ({
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">Tipo de Combustible *</label>
                   <select value={fuelType} onChange={(e) => setFuelType(e.target.value as FuelType)} className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500">
-                    <option value="diesel">⛽ Diésel</option>
-                    <option value="bunker_c">🛢️ Bunker C</option>
-                    <option value="marine_gasoil">⚓ Marine Gas Oil</option>
-                    <option value="jet_a1">✈️ Jet A-1</option>
+                    <option value="diesel"> Diésel</option>
+                    <option value="bunker_c"> Bunker C</option>
+                    <option value="marine_gasoil"> Marine Gas Oil</option>
+                    <option value="jet_a1"> Jet A-1</option>
                   </select>
                 </div>
                 <div>
@@ -394,7 +394,7 @@ export const SurchargeRulesManager: React.FC<SurchargeRulesManagerProps> = ({
 
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition cursor-pointer">Cancelar</button>
-                <button type="submit" disabled={isSubmitting} className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold shadow-lg shadow-amber-500/20 transition cursor-pointer disabled:opacity-50">
+                <button type="submit" disabled={isSubmitting} className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-white text-xs font-semibold transition cursor-pointer disabled:opacity-50">
                   {isSubmitting ? 'Guardando...' : editingRule ? 'Actualizar' : 'Crear Regla'}
                 </button>
               </div>

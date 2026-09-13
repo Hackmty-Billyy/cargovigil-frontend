@@ -1,5 +1,5 @@
 import React from 'react';
-import { Truck, ArrowUpRight } from 'lucide-react';
+import { Truck, ArrowRight } from 'lucide-react';
 
 interface LandingNavbarProps {
   onOpenLogin: () => void;
@@ -14,10 +14,10 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
 }) => {
   const navItems = [
     { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About' },
-    { id: 'services', label: 'Services' },
-    { id: 'pricing', label: 'Pricing' },
-    { id: 'contact', label: 'Contact' },
+    { id: 'about', label: 'Nosotros' },
+    { id: 'services', label: 'Servicios' },
+    { id: 'pricing', label: 'Planes' },
+    { id: 'contact', label: 'Contacto' },
   ];
 
   const handleNavClick = (id: string) => {
@@ -29,29 +29,32 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full py-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto backdrop-blur-md">
-      <div className="flex items-center justify-between">
-        {/* Logo */}
+    <header className="sticky top-0 z-40 w-full border-b border-gray-800 bg-gray-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+        {/* Brand */}
         <button
           onClick={() => handleNavClick('home')}
-          className="flex items-center gap-2.5 cursor-pointer text-left"
+          className="flex items-center gap-2.5 cursor-pointer"
         >
-          <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-lg shadow-purple-900/20">
-            <Truck className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+            <Truck className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-xl text-white tracking-tight">CargoVigil</span>
+          <span className="font-bold text-base text-white tracking-tight">CargoVigil</span>
+          <span className="hidden sm:inline text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">
+            Fintech v1.0
+          </span>
         </button>
 
-        {/* Center Navigation Pill Bar */}
-        <nav className="hidden md:flex items-center p-1.5 rounded-full bg-white/15 backdrop-blur-xl border border-white/25 shadow-inner">
+        {/* Nav Links */}
+        <nav className="hidden md:flex items-center gap-0.5">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleNavClick(item.id)}
-              className={`px-5 py-2 text-xs font-semibold rounded-full transition-all duration-300 cursor-pointer ${
+              className={`px-3.5 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                 activeSection === item.id
-                  ? 'bg-[#776de8] text-white shadow-md font-bold'
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
+                  ? 'bg-gray-800 text-white'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800/60'
               }`}
             >
               {item.label}
@@ -59,20 +62,20 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
           ))}
         </nav>
 
-        {/* Action Buttons */}
+        {/* Actions */}
         <div className="flex items-center gap-2">
           <button
             onClick={onOpenLogin}
-            className="px-4 py-2 text-xs font-medium text-white/90 hover:text-white hover:bg-white/10 rounded-full transition cursor-pointer"
+            className="px-3.5 py-1.5 text-xs font-medium text-gray-300 hover:text-white transition cursor-pointer"
           >
-            Log in
+            Iniciar sesión
           </button>
           <button
             onClick={onOpenLogin}
-            className="px-5 py-2 text-xs font-semibold text-white bg-slate-950 hover:bg-slate-900 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 border border-white/10 flex items-center gap-1 cursor-pointer"
+            className="px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition cursor-pointer inline-flex items-center gap-1.5"
           >
-            <span>Sign In</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
+            <span>Comenzar</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

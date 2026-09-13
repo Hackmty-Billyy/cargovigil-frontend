@@ -214,7 +214,7 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
 
         <button
           onClick={handleOpenCreate}
-          className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#776de8] to-[#8f85f3] hover:from-[#6b61db] hover:to-[#7f74ea] text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-[#776de8]/25 transition cursor-pointer self-start sm:self-auto"
+          className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-2 transition cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Nuevo Gasto Programado</span>
@@ -363,7 +363,7 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                       {isPending && (
                         <button
                           onClick={() => handleOpenPay(exp)}
-                          className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#776de8] to-[#8f85f3] hover:from-[#6b61db] hover:to-[#7f74ea] text-white text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-blue-600 hover:from-[#6b61db] hover:to-[#7f74ea] text-white text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
                         >
                           <CreditCard className="w-3 h-3" /> Pagar Gasto
                         </button>
@@ -429,13 +429,13 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                   onChange={(e) => setCategory(e.target.value as any)}
                   className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-[#776de8]"
                 >
-                  <option value="fuel">⛽ Combustible / Diésel</option>
-                  <option value="toll">🛣️ Casetas / Peajes</option>
-                  <option value="maintenance">🔧 Mantenimiento de Unidades</option>
-                  <option value="driver_payroll">👥 Nómina Operadores</option>
-                  <option value="port_fees">⚓ Tasas Portuarias / Terminales</option>
-                  <option value="insurance">🛡️ Seguros & Pólizas</option>
-                  <option value="other">📄 Otros Gastos Administrativos</option>
+                  <option value="fuel"> Combustible / Diésel</option>
+                  <option value="toll"> Casetas / Peajes</option>
+                  <option value="maintenance"> Mantenimiento de Unidades</option>
+                  <option value="driver_payroll"> Nómina Operadores</option>
+                  <option value="port_fees"> Tasas Portuarias / Terminales</option>
+                  <option value="insurance"> Seguros & Pólizas</option>
+                  <option value="other"> Otros Gastos Administrativos</option>
                 </select>
               </div>
 
@@ -495,7 +495,7 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#776de8] to-[#8f85f3] hover:from-[#6b61db] hover:to-[#7f74ea] text-white text-xs font-semibold shadow-lg shadow-[#776de8]/25 transition cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Guardando...' : 'Programar Gasto'}
                 </button>
@@ -587,7 +587,7 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting || bankAccounts.length === 0}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#776de8] to-[#8f85f3] hover:from-[#6b61db] hover:to-[#7f74ea] text-white text-xs font-semibold shadow-lg shadow-[#776de8]/25 transition cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Procesando...' : 'Confirmar Egreso'}
                 </button>

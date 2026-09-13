@@ -52,7 +52,7 @@ export const LiquidityAlertsBanner: React.FC<LiquidityAlertsBannerProps> = ({
 
   if (activeAlerts.length === 0 && !showResolved) {
     return (
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-950/40 via-slate-900/60 to-emerald-950/20 border border-emerald-500/30 p-5 shadow-lg backdrop-blur-md">
+      <div className="rounded-xl bg-gray-900 border border-gray-800 p-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
@@ -137,8 +137,8 @@ export const LiquidityAlertsBanner: React.FC<LiquidityAlertsBannerProps> = ({
           let cardBorder = isResolved
             ? 'border-slate-800 bg-slate-900/40 opacity-75'
             : isCritical
-            ? 'border-red-500/40 bg-gradient-to-br from-red-950/40 via-slate-900/80 to-slate-950'
-            : 'border-amber-500/40 bg-gradient-to-br from-amber-950/30 via-slate-900/80 to-slate-950';
+            ? 'border-red-800/60 bg-gray-800'
+            : 'border-amber-800/60 bg-gray-800';
 
           return (
             <div

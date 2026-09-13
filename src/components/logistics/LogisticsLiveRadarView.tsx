@@ -4,18 +4,26 @@ import { api } from '../../services/api';
 import type { Trip } from '../../types/logistics';
 import { LogisticsMap } from './LogisticsMap';
 import { PreTripSchedulerModal } from './PreTripSchedulerModal';
+import { TripSummaryModal } from './TripSummaryModal';
 import {
   Compass,
   FastForward,
-  PlusCircle,
+  Plus,
   AlertTriangle,
   CheckCircle2,
-  Clock,
   RefreshCw,
   Truck,
   Ship,
   Plane,
   Layers,
+  Trash2,
+  Eye,
+  EyeOff,
+  DollarSign,
+  Activity,
+  AlertCircle,
+  Package,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 export const LogisticsLiveRadarView: React.FC = () => {
@@ -26,7 +34,10 @@ export const LogisticsLiveRadarView: React.FC = () => {
   const [advancingTime, setAdvancingTime] = useState(false);
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [showSchedulerModal, setShowSchedulerModal] = useState(false);
-  const [filterMode, setFilterMode] = useState<string>('all'); // all | truck | ship | plane | stuck
+  const [summaryTrip, setSummaryTrip] = useState<Trip | null>(null);
+  const [filterMode, setFilterMode] = useState<string>('all'); // all | in_transit | truck | ship | plane | stuck
+  const [hideCompleted, setHideCompleted] = useState<boolean>(false);
+  const [deletingTripId, setDeletingTripId] = useState<string | null>(null);
   const [autoUpdateSeconds, setAutoUpdateSeconds] = useState<number>(60);
 
   // Load trips & fuel indices
@@ -54,7 +65,7 @@ export const LogisticsLiveRadarView: React.FC = () => {
     fetchTrips();
   }, [accessToken]);
 
-  // 1-minute auto-poll timer as requested
+  // 1-minute auto-poll timer
   useEffect(() => {
     const timer = setInterval(() => {
       fetchTrips(true);
@@ -71,7 +82,7 @@ export const LogisticsLiveRadarView: React.FC = () => {
     };
   }, [accessToken]);
 
-  // Advance time button (simulates movement and route incidents in DB)
+  // Advance time simulation
   const handleAdvanceSimulation = async () => {
     if (!accessToken) return;
     try {
@@ -90,8 +101,32 @@ export const LogisticsLiveRadarView: React.FC = () => {
     }
   };
 
+  const handleDeleteTrip = async (tripId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm('¿Deseas eliminar permanentemente este registro de viaje de la empresa?')) {
+      return;
+    }
+    if (!accessToken) return;
+
+    try {
+      setDeletingTripId(tripId);
+      await api.deleteTrip(accessToken, tripId);
+      setTrips((prev) => prev.filter((t) => t.id !== tripId));
+      if (selectedTripId === tripId) {
+        setSelectedTripId(null);
+      }
+    } catch (err) {
+      console.error('Error al quitar registro:', err);
+      alert('Error al quitar el registro de viaje. Intente nuevamente.');
+    } finally {
+      setDeletingTripId(null);
+    }
+  };
+
   const filteredTrips = trips.filter((t) => {
+    if (hideCompleted && t.status === 'completed') return false;
     if (filterMode === 'all') return true;
+    if (filterMode === 'in_transit') return t.status === 'in_transit' || (t.status !== 'completed' && !t.is_stuck);
     if (filterMode === 'stuck') return t.is_stuck;
     return t.vehicle_type === filterMode;
   });
@@ -105,129 +140,173 @@ export const LogisticsLiveRadarView: React.FC = () => {
   const completedCount = trips.filter((t) => t.status === 'completed').length;
 
   return (
-    <div className="space-y-6 pb-20">
-      {/* Header & Controls Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 p-6 rounded-2xl shadow-xl backdrop-blur-md">
+    <div className="space-y-5 pb-20 max-w-7xl mx-auto">
+      {/* Flowbite Minimalist Header */}
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-cyan-950 text-cyan-400 border border-cyan-800/60">
-              Módulo 4 & Visualización en Tiempo Real
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-blue-900/30 text-blue-400 border border-blue-800/40">
+              Módulo Radar
             </span>
-            <span className="flex items-center gap-1.5 text-xs text-slate-400">
-              <Clock className="w-3.5 h-3.5 text-slate-500" />
-              Siguiente ciclo automático en: <span className="font-mono text-emerald-400 font-bold">{autoUpdateSeconds}s</span>
+            <span className="inline-flex items-center gap-1.5 text-xs text-gray-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              Sincronización en <span className="font-mono text-gray-200 font-semibold">{autoUpdateSeconds}s</span>
             </span>
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
-            <Compass className="w-6 h-6 text-[#776de8]" />
-            Radar de Operaciones & Telemetría Financiera
+          <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+            <Compass className="w-5 h-5 text-blue-500" />
+            Radar de Operaciones &amp; Telemetría
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Visualización multimodal con WebGL/Mapbox tiles, control de fricciones en tiempo real y proyecciones de combustible.
+          <p className="text-xs text-gray-400 mt-0.5">
+            Monitoreo en vivo de fletes, incidencias en carretera y posición satelital multimodal.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
+        {/* Header Action Buttons */}
+        <div className="flex items-center gap-2.5 flex-wrap">
           {/* Simulation Time Advance Button */}
           <button
+            type="button"
             onClick={handleAdvanceSimulation}
             disabled={advancingTime}
-            className="px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white flex items-center gap-2 shadow-lg shadow-orange-500/20 transition cursor-pointer disabled:opacity-50"
-            title="Avanza 1 hora simulada: mueve vehículos en mapa, desencadena atascos o libera demoras"
+            className="text-gray-300 bg-gray-800 hover:bg-gray-700 border border-gray-700 focus:ring-2 focus:ring-gray-700 font-medium rounded-lg text-xs px-3.5 py-2 inline-flex items-center gap-2 transition cursor-pointer disabled:opacity-50"
+            title="Avanza 1 hora simulada de trayecto para mover las unidades en el mapa"
           >
-            <FastForward className={`w-4 h-4 ${advancingTime ? 'animate-spin' : ''}`} />
-            <span>{advancingTime ? 'Simulando Ruta...' : 'Avanzar Tiempo (Simular)'}</span>
+            <FastForward className={`w-3.5 h-3.5 text-amber-400 ${advancingTime ? 'animate-spin' : ''}`} />
+            <span>{advancingTime ? 'Simulando...' : 'Avanzar Simulación'}</span>
           </button>
 
           {/* Schedule New Trip Button */}
           <button
+            type="button"
             onClick={() => setShowSchedulerModal(true)}
-            className="px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#776de8] to-[#8f85f3] hover:from-[#695fe4] hover:to-[#8175f0] text-white flex items-center gap-2 shadow-lg shadow-[#776de8]/30 transition cursor-pointer"
+            className="text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 font-medium rounded-lg text-xs px-4 py-2 inline-flex items-center gap-2 transition cursor-pointer shadow-xs"
           >
-            <PlusCircle className="w-4 h-4" />
-            <span>Agendar Viaje (Pre-Análisis)</span>
+            <Plus className="w-4 h-4" />
+            <span>Agendar Viaje</span>
           </button>
 
           {/* Manual Refresh */}
           <button
+            type="button"
             onClick={() => fetchTrips(false)}
-            className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition cursor-pointer"
+            className="p-2 text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition cursor-pointer"
             title="Refrescar datos ahora"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-[#776de8]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-400' : ''}`} />
           </button>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
-          <span className="text-[11px] font-medium text-slate-400 block mb-1">Caja Total en Fletes</span>
-          <p className="text-xl font-black text-white">
-            ${totalAgreedRevenue.toLocaleString()} <span className="text-xs text-slate-400">USD</span>
+      {/* Minimalist KPI Cards (no emojis) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="p-4 bg-gray-900 border border-gray-800 rounded-xl shadow-2xs">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-400">Caja Total en Fletes</span>
+            <span className="p-1.5 bg-blue-900/20 text-blue-400 rounded-lg">
+              <DollarSign className="w-3.5 h-3.5" />
+            </span>
+          </div>
+          <div className="text-xl font-bold text-white tracking-tight">
+            ${totalAgreedRevenue.toLocaleString()}{' '}
+            <span className="text-xs font-normal text-gray-400">USD</span>
+          </div>
+          <p className="text-[11px] text-gray-400 mt-1 flex items-center gap-1">
+            <span className="font-semibold text-gray-300">{trips.length}</span> viajes en total
           </p>
-          <span className="text-[10px] text-emerald-400 font-medium mt-1 flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" /> {trips.length} viajes registrados
-          </span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
-          <span className="text-[11px] font-medium text-slate-400 block mb-1">En Tránsito Activo</span>
-          <p className="text-xl font-black text-sky-400">{activeInTransit}</p>
-          <span className="text-[10px] text-slate-400 font-medium mt-1">
-            Monitoreo satelital activo
-          </span>
+        <div className="p-4 bg-gray-900 border border-gray-800 rounded-xl shadow-2xs">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-400">En Tránsito Activo</span>
+            <span className="p-1.5 bg-cyan-900/20 text-cyan-400 rounded-lg">
+              <Activity className="w-3.5 h-3.5" />
+            </span>
+          </div>
+          <div className="text-xl font-bold text-cyan-400 tracking-tight">{activeInTransit}</div>
+          <p className="text-[11px] text-gray-400 mt-1">Unidades en movimiento</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
-          <span className="text-[11px] font-medium text-slate-400 block mb-1">Fricciones / Atascos</span>
-          <p className={`text-xl font-black ${stuckCount > 0 ? 'text-red-400 animate-pulse' : 'text-slate-400'}`}>
+        <div className="p-4 bg-gray-900 border border-gray-800 rounded-xl shadow-2xs">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-400">Fricciones / Atascos</span>
+            <span className={`p-1.5 rounded-lg ${stuckCount > 0 ? 'bg-red-900/30 text-red-400' : 'bg-gray-800 text-gray-500'}`}>
+              <AlertCircle className="w-3.5 h-3.5" />
+            </span>
+          </div>
+          <div className={`text-xl font-bold tracking-tight ${stuckCount > 0 ? 'text-red-400' : 'text-gray-300'}`}>
             {stuckCount}
+          </div>
+          <p className="text-[11px] text-gray-400 mt-1">
+            {stuckCount > 0 ? 'Atención operativa requerida' : 'Sin demoras críticas'}
           </p>
-          <span className="text-[10px] text-red-400 font-medium mt-1 flex items-center gap-1">
-            <AlertTriangle className="w-3 h-3" /> Requieren mitigación
-          </span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
-          <span className="text-[11px] font-medium text-slate-400 block mb-1">Viajes Completados</span>
-          <p className="text-xl font-black text-emerald-400">{completedCount}</p>
-          <span className="text-[10px] text-slate-400 font-medium mt-1">
-            Entrega & POD confirmados
-          </span>
+        <div className="p-4 bg-gray-900 border border-gray-800 rounded-xl shadow-2xs">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-gray-400">Viajes Completados</span>
+            <span className="p-1.5 bg-emerald-900/20 text-emerald-400 rounded-lg">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            </span>
+          </div>
+          <div className="text-xl font-bold text-emerald-400 tracking-tight">{completedCount}</div>
+          <p className="text-[11px] text-gray-400 mt-1">Entrega &amp; POD cerrados</p>
         </div>
       </div>
 
       {/* Main Grid: Interactive Map + Telemetry Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Map Center Column (2 cols) */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* Map Filtering pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            {[
-              { id: 'all', label: 'Todos los Modos', icon: Layers },
-              { id: 'truck', label: '🚛 Camiones', icon: Truck },
-              { id: 'ship', label: '🚢 Buques', icon: Ship },
-              { id: 'plane', label: '✈️ Vuelos', icon: Plane },
-              { id: 'stuck', label: '⚠️ Con Fricción', icon: AlertTriangle },
-            ].map((f) => {
-              const Icon = f.icon;
-              const isActive = filterMode === f.id;
-              return (
-                <button
-                  key={f.id}
-                  onClick={() => setFilterMode(f.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shrink-0 ${
-                    isActive
-                      ? 'bg-[#776de8] text-white shadow-md shadow-[#776de8]/30'
-                      : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{f.label}</span>
-                </button>
-              );
-            })}
+        <div className="lg:col-span-2 space-y-3">
+          {/* Segmented Filter Group (No emojis) */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5">
+            <div className="inline-flex rounded-lg shadow-2xs bg-gray-900 p-1 border border-gray-800 overflow-x-auto max-w-full">
+              {[
+                { id: 'all', label: 'Todos', icon: Layers },
+                { id: 'in_transit', label: 'En Movimiento', icon: Truck },
+                { id: 'truck', label: 'Camiones', icon: Truck },
+                { id: 'ship', label: 'Buques', icon: Ship },
+                { id: 'plane', label: 'Vuelos', icon: Plane },
+                { id: 'stuck', label: 'Con Fricción', icon: AlertTriangle },
+              ].map((f) => {
+                const Icon = f.icon;
+                const isActive = filterMode === f.id;
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setFilterMode(f.id)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md inline-flex items-center gap-1.5 transition cursor-pointer shrink-0 ${
+                      isActive
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                    }`}
+                  >
+                    <Icon className="w-3 h-3" />
+                    <span>{f.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Toggle to hide / show completed trips (No emojis) */}
+            <button
+              type="button"
+              onClick={() => setHideCompleted(!hideCompleted)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition cursor-pointer border ${
+                hideCompleted
+                  ? 'bg-emerald-900/30 text-emerald-300 border-emerald-800/60 shadow-xs'
+                  : 'bg-gray-900 text-gray-400 hover:text-white border-gray-800'
+              }`}
+              title="Ocultar o mostrar viajes completados para ver solo las unidades en movimiento"
+            >
+              {hideCompleted ? (
+                <EyeOff className="w-3.5 h-3.5 text-emerald-400" />
+              ) : (
+                <Eye className="w-3.5 h-3.5 text-gray-400" />
+              )}
+              <span>{hideCompleted ? 'Ocultando Completados' : 'Ocultar Completados'}</span>
+            </button>
           </div>
 
           {/* Interactive Map Component */}
@@ -235,47 +314,69 @@ export const LogisticsLiveRadarView: React.FC = () => {
             trips={filteredTrips}
             selectedTripId={selectedTripId}
             onSelectTrip={(t) => setSelectedTripId(t.id)}
+            onOpenSummary={(t) => setSummaryTrip(t)}
           />
         </div>
 
         {/* Right Telemetry Details Card (1 col) */}
-        <div className="space-y-4">
+        <div>
           {selectedTrip ? (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-xs space-y-4">
+              {/* Card Header */}
+              <div className="flex items-start justify-between border-b border-gray-800 pb-3">
                 <div>
-                  <span className="text-[10px] font-mono uppercase text-slate-400 block">
+                  <span className="text-[10px] font-mono uppercase text-gray-500 block">
                     {selectedTrip.vehicle_type?.toUpperCase()} ASIGNADO
                   </span>
-                  <h3 className="text-base font-bold text-white">
+                  <h3 className="text-base font-bold text-white tracking-tight">
                     {selectedTrip.vehicle_identifier || selectedTrip.tracking_code}
                   </h3>
+                  <p className="text-xs font-mono text-blue-400">{selectedTrip.tracking_code}</p>
                 </div>
                 <span
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider ${
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase ${
                     selectedTrip.is_stuck
-                      ? 'bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse'
+                      ? 'bg-red-900/30 text-red-300 border border-red-800/50 animate-pulse'
                       : selectedTrip.status === 'completed'
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                      : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
+                      ? 'bg-emerald-900/30 text-emerald-300 border border-emerald-800/50'
+                      : 'bg-blue-900/30 text-blue-300 border border-blue-800/50'
                   }`}
                 >
                   {selectedTrip.is_stuck ? 'Atascado' : selectedTrip.status}
                 </span>
               </div>
 
-              {/* Friction Alert Banner if stuck */}
-              {selectedTrip.is_stuck && (
-                <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-800/80 text-red-200 text-xs space-y-1">
-                  <div className="flex items-center gap-1.5 font-bold text-red-300">
-                    <AlertTriangle className="w-4 h-4 text-red-400" />
-                    <span>Fricción Operativa Detectada en Ruta</span>
+              {/* Completed Trip Summary Banner */}
+              {(selectedTrip.status === 'completed' || selectedTrip.progress_percentage >= 100) && (
+                <div className="p-3.5 bg-emerald-950/40 border border-emerald-900/60 rounded-xl flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-300">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span>Viaje Concluido</span>
+                    </div>
+                    <p className="text-[11px] text-emerald-400/80">
+                      Liquidación de costo, gastos y pérdidas disponible.
+                    </p>
                   </div>
-                  <p className="text-[11px] leading-relaxed">
+                  <button
+                    type="button"
+                    onClick={() => setSummaryTrip(selectedTrip)}
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium transition cursor-pointer shadow-xs shrink-0 ml-2"
+                  >
+                    Ver Resumen
+                  </button>
+                </div>
+              )}
+
+              {/* Friction Alert */}
+              {selectedTrip.is_stuck && (
+                <div className="p-3 text-xs text-red-300 rounded-lg bg-red-950/40 border border-red-900/60 space-y-1">
+                  <div className="flex items-center gap-1.5 font-semibold text-red-400">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                    <span>Fricción Operativa en Ruta</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-red-200">
                     {selectedTrip.stuck_reason || 'Retraso de aduana o bloqueo vehicular activo.'}
-                  </p>
-                  <p className="text-[10px] text-red-400 font-mono pt-1">
-                    Impacto en costo de demora: +$180.00 USD / turno
                   </p>
                 </div>
               )}
@@ -283,208 +384,234 @@ export const LogisticsLiveRadarView: React.FC = () => {
               {/* Progress Bar */}
               <div>
                 <div className="flex items-center justify-between text-xs mb-1.5">
-                  <span className="text-slate-400">Progreso del Recorrido:</span>
-                  <span className="font-bold text-white">
+                  <span className="text-gray-400 font-medium">Progreso del Recorrido</span>
+                  <span className="font-bold text-white font-mono">
                     {selectedTrip.progress_percentage.toFixed(1)}%
                   </span>
                 </div>
-                <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
                   <div
-                    className={`h-full transition-all duration-700 ${
+                    className={`h-2 rounded-full transition-all duration-500 ${
                       selectedTrip.is_stuck
                         ? 'bg-red-500'
                         : selectedTrip.status === 'completed'
                         ? 'bg-emerald-500'
-                        : 'bg-gradient-to-r from-[#776de8] to-cyan-400'
+                        : 'bg-blue-600'
                     }`}
                     style={{ width: `${selectedTrip.progress_percentage}%` }}
                   />
                 </div>
               </div>
 
-              {/* Route & Client Details */}
-              <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 space-y-2.5 text-xs">
+              {/* Route & Cargo Specs */}
+              <div className="bg-gray-800/40 border border-gray-800 rounded-lg p-3.5 space-y-2 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Cliente:</span>
-                  <span className="font-semibold text-white">{selectedTrip.client_name || 'Ternium México'}</span>
+                  <span className="text-gray-400">Cliente:</span>
+                  <span className="font-medium text-white">{selectedTrip.client_name || 'N/A'}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Ruta:</span>
-                  <span className="font-semibold text-slate-200 text-right">
-                    {selectedTrip.route_origin} ➔ {selectedTrip.route_destination}
+                  <span className="text-gray-400">Ruta:</span>
+                  <span className="font-medium text-gray-200 text-right">
+                    {selectedTrip.route_origin}  {selectedTrip.route_destination}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Distancia Total:</span>
-                  <span className="font-mono text-slate-200">
+                  <span className="text-gray-400">Distancia:</span>
+                  <span className="font-mono text-gray-300">
                     {selectedTrip.route_distance_km || 220} km
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Carga:</span>
-                  <span className="font-medium text-slate-300">
-                    {selectedTrip.cargo_type} ({selectedTrip.cargo_weight_tons} tons)
+                  <span className="text-gray-400">Carga:</span>
+                  <span className="text-gray-300">
+                    {selectedTrip.cargo_type} ({selectedTrip.cargo_weight_tons} ton)
                   </span>
                 </div>
               </div>
 
-              {/* Financial Breakdown */}
-              <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 space-y-2.5 text-xs">
-                <span className="font-bold text-slate-300 block border-b border-slate-800 pb-1">
-                  Desglose Financiero & Flujo
+              {/* Financial Summary Card */}
+              <div className="bg-gray-800/40 border border-gray-800 rounded-lg p-3.5 space-y-2 text-xs">
+                <span className="text-xs font-semibold text-gray-300 block border-b border-gray-800 pb-1.5">
+                  Resumen Financiero
                 </span>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Flete Pactado (Ingreso):</span>
+                  <span className="text-gray-400">Flete Cobrado:</span>
                   <span className="font-bold text-emerald-400">
                     ${selectedTrip.agreed_freight_price.toLocaleString()} {selectedTrip.currency}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Costo Combustible Asignado:</span>
-                  <span className="font-semibold text-amber-400">
+                  <span className="text-gray-400">Gasto Estimado Combustible:</span>
+                  <span className="font-medium text-amber-400">
                     ${selectedTrip.estimated_fuel_cost.toLocaleString()} {selectedTrip.currency}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Presupuesto de Contingencia:</span>
-                  <span className="font-mono text-slate-300">
+                  <span className="text-gray-400">Presupuesto Contingencia:</span>
+                  <span className="font-mono text-gray-300">
                     ${selectedTrip.contingency_budget.toLocaleString()} {selectedTrip.currency}
                   </span>
                 </div>
-                <div className="flex items-center justify-between pt-2 border-t border-slate-800">
-                  <span className="text-slate-300 font-semibold">Exposición por Riesgo:</span>
+                <div className="flex items-center justify-between pt-1.5 border-t border-gray-800">
+                  <span className="text-gray-400 font-medium">Exposición a Riesgo:</span>
                   <span className="font-bold text-red-400">
                     ${selectedTrip.estimated_loss_risk.toLocaleString()} {selectedTrip.currency}
                   </span>
                 </div>
               </div>
-
-              {/* Action */}
-              <button
-                onClick={handleAdvanceSimulation}
-                disabled={advancingTime}
-                className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-xl text-xs flex items-center justify-center gap-2 transition cursor-pointer"
-              >
-                <FastForward className="w-3.5 h-3.5 text-amber-400" />
-                <span>Simular Siguiente Tramo GPS</span>
-              </button>
             </div>
           ) : (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center text-slate-400 text-xs space-y-3">
-              <Compass className="w-10 h-10 text-slate-600 mx-auto" />
-              <p>Selecciona un viaje en la lista o en el mapa para inspeccionar sus costos y posición satelital.</p>
+            <div className="bg-gray-900 border border-gray-800 rounded-xl p-8 text-center text-gray-400 text-xs space-y-2.5">
+              <Package className="w-8 h-8 text-gray-600 mx-auto" />
+              <p className="font-medium text-gray-300">Ningún viaje seleccionado</p>
+              <p className="text-gray-500">
+                Haz clic sobre un vehículo en el mapa o en una fila de la tabla para ver su posición y telemetría.
+              </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Trips List Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-        <div className="p-4 sm:p-6 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
-              <Layers className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-white">Viajes Activos de la Empresa</h2>
-              <p className="text-xs text-slate-400">
-                Aislamiento Multi-Tenant garantizado: solo ves los trayectos de tu organización.
-              </p>
-            </div>
+      {/* Flowbite Minimalist Table */}
+      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-xs">
+        <div className="p-4 sm:p-5 border-b border-gray-800 flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-white">Viajes Activos de la Empresa</h2>
+            <p className="text-xs text-gray-400">
+              Registros aislados por organización en tiempo real.
+            </p>
           </div>
-          <span className="text-xs font-mono bg-slate-800 text-slate-300 px-3 py-1 rounded-lg border border-slate-700">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700">
             {trips.length} registros
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950/80 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800">
+          <table className="w-full text-xs text-left text-gray-400">
+            <thead className="text-[11px] font-semibold text-gray-400 uppercase bg-gray-800/50 border-b border-gray-800">
               <tr>
-                <th className="px-5 py-3.5">Código / Modo</th>
-                <th className="px-5 py-3.5">Ruta</th>
-                <th className="px-5 py-3.5">Cliente</th>
-                <th className="px-5 py-3.5">Progreso</th>
-                <th className="px-5 py-3.5">Estado</th>
-                <th className="px-5 py-3.5">Flete Cobrado</th>
-                <th className="px-5 py-3.5 text-right">Acción</th>
+                <th scope="col" className="px-4 py-3">Código / Modo</th>
+                <th scope="col" className="px-4 py-3">Ruta</th>
+                <th scope="col" className="px-4 py-3">Cliente</th>
+                <th scope="col" className="px-4 py-3">Progreso</th>
+                <th scope="col" className="px-4 py-3">Estado</th>
+                <th scope="col" className="px-4 py-3">Flete</th>
+                <th scope="col" className="px-4 py-3 text-right">Acción</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
-              {filteredTrips.map((trip) => {
-                const isSelected = trip.id === selectedTripId;
-                return (
-                  <tr
-                    key={trip.id}
-                    onClick={() => setSelectedTripId(trip.id)}
-                    className={`transition cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#776de8]/15 border-l-2 border-[#776de8]'
-                        : 'hover:bg-slate-800/40'
-                    }`}
-                  >
-                    <td className="px-5 py-3.5 font-medium text-white flex items-center gap-2">
-                      <span className="text-base">
-                        {trip.vehicle_type === 'truck' ? '🚛' : trip.vehicle_type === 'ship' ? '🚢' : '✈️'}
-                      </span>
-                      <div>
-                        <p className="font-bold">{trip.tracking_code}</p>
-                        <p className="text-[10px] text-slate-400">{trip.vehicle_identifier}</p>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3.5 text-slate-300">
-                      {trip.route_origin} ➔ {trip.route_destination}
-                    </td>
-                    <td className="px-5 py-3.5 text-slate-300">{trip.client_name || 'N/A'}</td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-2 bg-slate-800 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full ${
-                              trip.is_stuck
-                                ? 'bg-red-500'
-                                : trip.status === 'completed'
-                                ? 'bg-emerald-500'
-                                : 'bg-[#776de8]'
-                            }`}
-                            style={{ width: `${trip.progress_percentage}%` }}
-                          />
-                        </div>
-                        <span className="font-mono text-[11px] font-bold">
-                          {trip.progress_percentage.toFixed(0)}%
+            <tbody className="divide-y divide-gray-800/60">
+              {filteredTrips.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                    No se encontraron viajes con los filtros seleccionados.
+                  </td>
+                </tr>
+              ) : (
+                filteredTrips.map((trip) => {
+                  const isSelected = trip.id === selectedTripId;
+                  const isCompleted = trip.status === 'completed' || trip.progress_percentage >= 100;
+                  return (
+                    <tr
+                      key={trip.id}
+                      onClick={() => {
+                        setSelectedTripId(trip.id);
+                        if (isCompleted) {
+                          setSummaryTrip(trip);
+                        }
+                      }}
+                      className={`transition cursor-pointer ${
+                        isSelected
+                          ? 'bg-blue-900/15 border-l-2 border-blue-500 text-white'
+                          : 'hover:bg-gray-800/40 text-gray-300'
+                      }`}
+                    >
+                      <td className="px-4 py-3 font-medium text-white flex items-center gap-2.5">
+                        <span className="p-1.5 rounded-md bg-gray-800 border border-gray-700 text-gray-300">
+                          {trip.vehicle_type === 'truck' ? (
+                            <Truck className="w-3.5 h-3.5 text-sky-400" />
+                          ) : trip.vehicle_type === 'ship' ? (
+                            <Ship className="w-3.5 h-3.5 text-blue-400" />
+                          ) : (
+                            <Plane className="w-3.5 h-3.5 text-purple-400" />
+                          )}
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase ${
-                          trip.is_stuck
-                            ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                            : trip.status === 'completed'
-                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                            : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
-                        }`}
-                      >
-                        {trip.is_stuck ? 'Atascado' : trip.status}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5 font-bold text-emerald-400">
-                      ${trip.agreed_freight_price.toLocaleString()} {trip.currency}
-                    </td>
-                    <td className="px-5 py-3.5 text-right">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedTripId(trip.id);
-                        }}
-                        className="px-3 py-1 bg-slate-800 hover:bg-[#776de8] text-slate-300 hover:text-white rounded-lg text-xs transition cursor-pointer"
-                      >
-                        Ver en Mapa
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                        <div>
+                          <p className="font-semibold text-white">{trip.tracking_code}</p>
+                          <p className="text-[10px] text-gray-400">{trip.vehicle_identifier}</p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-gray-300">
+                        {trip.route_origin} &rarr; {trip.route_destination}
+                      </td>
+                      <td className="px-4 py-3 text-gray-300">{trip.client_name || 'N/A'}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-gray-800 rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className={`h-1.5 rounded-full ${
+                                trip.is_stuck
+                                  ? 'bg-red-500'
+                                  : trip.status === 'completed'
+                                  ? 'bg-emerald-500'
+                                  : 'bg-blue-500'
+                              }`}
+                              style={{ width: `${trip.progress_percentage}%` }}
+                            />
+                          </div>
+                          <span className="font-mono text-[10px] font-semibold text-gray-300">
+                            {trip.progress_percentage.toFixed(0)}%
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium uppercase ${
+                            trip.is_stuck
+                              ? 'bg-red-900/30 text-red-300 border border-red-800/40'
+                              : trip.status === 'completed'
+                              ? 'bg-emerald-900/30 text-emerald-300 border border-emerald-800/40'
+                              : 'bg-blue-900/30 text-blue-300 border border-blue-800/40'
+                          }`}
+                        >
+                          {trip.is_stuck ? 'Atascado' : trip.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-semibold text-emerald-400 font-mono">
+                        ${trip.agreed_freight_price.toLocaleString()} {trip.currency}
+                      </td>
+                      <td className="px-4 py-3 text-right whitespace-nowrap space-x-1.5">
+                        {isCompleted && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedTripId(trip.id);
+                              setSummaryTrip(trip);
+                            }}
+                            className="px-2.5 py-1 text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-800/60 rounded-lg transition cursor-pointer inline-flex items-center gap-1 text-[11px] font-medium"
+                            title="Ver resumen de liquidación financiera"
+                          >
+                            <FileSpreadsheet className="w-3.5 h-3.5" />
+                            <span>Resumen</span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteTrip(trip.id, e)}
+                          disabled={deletingTripId === trip.id}
+                          className="px-2.5 py-1 text-gray-400 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 rounded-lg transition cursor-pointer inline-flex items-center gap-1 disabled:opacity-50"
+                          title="Eliminar viaje del registro"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span className="text-[11px] font-medium">
+                            {deletingTripId === trip.id ? '...' : 'Quitar'}
+                          </span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -498,6 +625,14 @@ export const LogisticsLiveRadarView: React.FC = () => {
             setTrips((prev) => [newTrip, ...prev]);
             setSelectedTripId(newTrip.id);
           }}
+        />
+      )}
+
+      {/* Completed Trip Summary Modal */}
+      {summaryTrip && (
+        <TripSummaryModal
+          trip={summaryTrip}
+          onClose={() => setSummaryTrip(null)}
         />
       )}
     </div>

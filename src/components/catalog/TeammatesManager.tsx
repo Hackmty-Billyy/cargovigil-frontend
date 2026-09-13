@@ -176,7 +176,7 @@ export const TeammatesManager: React.FC = () => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-2.5 rounded-xl text-xs font-semibold text-white bg-[#776de8] hover:bg-[#6c61e4] disabled:opacity-50 transition shadow-lg shadow-[#776de8]/25 cursor-pointer"
+                className="w-full py-2.5 rounded-xl text-xs font-semibold text-white bg-[#776de8] hover:bg-[#6c61e4] disabled:opacity-50 transition  cursor-pointer"
               >
                 {submitting ? 'Creando Usuario...' : 'Dar de Alta Colaborador'}
               </button>

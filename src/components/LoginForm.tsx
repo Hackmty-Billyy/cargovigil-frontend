@@ -102,7 +102,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
           <button
             type="submit"
             disabled={isSubmitting || !email.trim() || !password}
-            className="w-full mt-2 py-3 px-4 rounded-full bg-gradient-to-r from-[#776de8] to-[#6054e2] hover:from-[#6c61e4] hover:to-[#5448dc] text-white font-bold text-sm shadow-lg shadow-[#776de8]/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full mt-2 py-3 px-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isSubmitting ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

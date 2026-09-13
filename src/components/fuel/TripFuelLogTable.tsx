@@ -136,7 +136,7 @@ export const TripFuelLogTable: React.FC<TripFuelLogTableProps> = ({
         {canWrite && (
           <button
             onClick={handleOpenCreate}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-amber-500/20 transition cursor-pointer self-start sm:self-auto"
+            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer self-start sm:self-auto"
           >
             <Plus className="w-4 h-4" />
             Registrar Carga
@@ -180,10 +180,10 @@ export const TripFuelLogTable: React.FC<TripFuelLogTableProps> = ({
           className="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"
         >
           <option value="all">Todos los Combustibles</option>
-          <option value="diesel">⛽ Diésel</option>
-          <option value="bunker_c">🛢️ Bunker C</option>
-          <option value="marine_gasoil">⚓ Marine Gas Oil</option>
-          <option value="jet_a1">✈️ Jet A-1</option>
+          <option value="diesel"> Diésel</option>
+          <option value="bunker_c"> Bunker C</option>
+          <option value="marine_gasoil"> Marine Gas Oil</option>
+          <option value="jet_a1"> Jet A-1</option>
         </select>
       </div>
 
@@ -272,10 +272,10 @@ export const TripFuelLogTable: React.FC<TripFuelLogTableProps> = ({
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">Tipo de Combustible *</label>
                   <select value={fuelType} onChange={(e) => setFuelType(e.target.value as FuelType)} className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500">
-                    <option value="diesel">⛽ Diésel</option>
-                    <option value="bunker_c">🛢️ Bunker C</option>
-                    <option value="marine_gasoil">⚓ Marine Gas Oil</option>
-                    <option value="jet_a1">✈️ Jet A-1</option>
+                    <option value="diesel"> Diésel</option>
+                    <option value="bunker_c"> Bunker C</option>
+                    <option value="marine_gasoil"> Marine Gas Oil</option>
+                    <option value="jet_a1"> Jet A-1</option>
                   </select>
                 </div>
                 <div>
@@ -316,7 +316,7 @@ export const TripFuelLogTable: React.FC<TripFuelLogTableProps> = ({
 
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition cursor-pointer">Cancelar</button>
-                <button type="submit" disabled={isSubmitting || trips.length === 0} className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold shadow-lg shadow-amber-500/20 transition cursor-pointer disabled:opacity-50">
+                <button type="submit" disabled={isSubmitting || trips.length === 0} className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-white text-xs font-semibold transition cursor-pointer disabled:opacity-50">
                   {isSubmitting ? 'Guardando...' : 'Registrar Carga'}
                 </button>
               </div>

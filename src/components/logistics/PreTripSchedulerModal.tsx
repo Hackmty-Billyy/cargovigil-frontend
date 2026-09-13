@@ -244,7 +244,7 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
       <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl my-8 text-slate-100">
         <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#776de8] to-[#bbb3ff] flex items-center justify-center shadow-lg shadow-[#776de8]/20">
+            <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center ">
               <Calculator className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -260,7 +260,7 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
             onClick={onClose}
             className="text-slate-400 hover:text-white p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 transition"
           >
-            ✕
+            
           </button>
         </div>
 
@@ -298,11 +298,11 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
                     required
                   >
                     {vehicles.length === 0 ? (
-                      <option value="">⚠️ Sin vehículos registrados</option>
+                      <option value="">Sin vehículos registrados</option>
                     ) : (
                       vehicles.map((v) => (
                         <option key={v.id} value={v.id}>
-                          {v.type === 'truck' ? '🚛 Terrestre' : v.type === 'ship' ? '🚢 Marítimo' : '✈️ Aéreo'} — {v.identifier || v.id}
+                          {v.type === 'truck' ? 'Terrestre' : v.type === 'ship' ? 'Marítimo' : 'Aéreo'} — {v.identifier || v.id}
                         </option>
                       ))
                     )}
@@ -312,7 +312,7 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
                 {/* Ruta */}
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Ruta Origen ➔ Destino
+                    Ruta Origen  Destino
                   </label>
                   <select
                     value={routeId}
@@ -321,11 +321,11 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
                     required
                   >
                     {routes.length === 0 ? (
-                      <option value="">⚠️ Sin rutas registradas</option>
+                      <option value="">Sin rutas registradas</option>
                     ) : (
                       routes.map((r) => (
                         <option key={r.id} value={r.id}>
-                          {r.origin} ➔ {r.destination} ({r.distance_km || 0} km)
+                          {r.origin}  {r.destination} ({r.distance_km || 0} km)
                         </option>
                       ))
                     )}
@@ -345,7 +345,7 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
                       required
                     >
                       {clients.length === 0 ? (
-                        <option value="">⚠️ Sin clientes registrados</option>
+                        <option value="">Sin clientes registrados</option>
                       ) : (
                         clients.map((c) => (
                           <option key={c.id} value={c.id}>
@@ -378,7 +378,7 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-slate-300 mb-1">
-                      📅 Salida Programada <span className="text-slate-500">(manual)</span>
+                      Salida Programada <span className="text-slate-500">(manual)</span>
                     </label>
                     <input
                       type="datetime-local"
@@ -594,7 +594,7 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-300 mt-2 leading-relaxed">
-                          💡 {projection.recommendation}
+                          {projection.recommendation}
                         </p>
                       </div>
 
@@ -629,7 +629,7 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
                   <button
                     type="submit"
                     disabled={submitting || !estimatedArrivalDate || agreedPrice <= 0}
-                    className="w-2/3 py-2.5 bg-gradient-to-r from-[#776de8] to-[#8f85f3] hover:from-[#6b60e6] hover:to-[#8276f1] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-[#776de8]/30 transition cursor-pointer disabled:opacity-50"
+                    className="w-2/3 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
                   >
                     {submitting ? (
                       <>

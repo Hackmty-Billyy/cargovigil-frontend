@@ -62,7 +62,7 @@ export const RouteRiskView: React.FC<RouteRiskViewProps> = ({ profiles, canWrite
           <button
             onClick={() => recalculate()}
             disabled={isRecalculating}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#776de8] to-[#8f85f3] hover:from-[#6b61db] hover:to-[#7f74ea] text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-[#776de8]/25 transition cursor-pointer disabled:opacity-50 self-start sm:self-auto"
+            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-2 transition cursor-pointer disabled:opacity-50 self-start sm:self-auto"
           >
             <RefreshCw className={`w-4 h-4 ${isRecalculating ? 'animate-spin' : ''}`} />
             <span>Recalcular todas</span>

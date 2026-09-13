@@ -127,7 +127,7 @@ export const PlatformCompaniesView: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Platform Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-[#776de8]/30 p-6 shadow-xl">
+      <div className="rounded-xl bg-gray-900 border border-gray-800 p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -148,7 +148,7 @@ export const PlatformCompaniesView: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#776de8] to-[#5b4fdf] hover:from-[#6c61e4] hover:to-[#5044d4] text-white font-semibold text-xs shadow-lg shadow-[#776de8]/25 flex items-center gap-2 transition cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-2 transition cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Nueva Empresa</span>
@@ -326,7 +326,7 @@ export const PlatformCompaniesView: React.FC = () => {
                 onClick={() => setIsModalOpen(false)}
                 className="text-slate-400 hover:text-white text-lg font-semibold cursor-pointer"
               >
-                ✕
+                
               </button>
             </div>
 
@@ -392,7 +392,7 @@ export const PlatformCompaniesView: React.FC = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-[#776de8] hover:bg-[#6c61e4] disabled:opacity-50 transition shadow-lg shadow-[#776de8]/20 cursor-pointer"
+                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-[#776de8] hover:bg-[#6c61e4] disabled:opacity-50 transition  cursor-pointer"
                 >
                   {submitting ? 'Creando...' : 'Guardar y Activar Empresa'}
                 </button>

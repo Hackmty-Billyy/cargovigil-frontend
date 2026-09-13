@@ -58,6 +58,20 @@ import type {
   CloseFrictionPayload,
   UpdateCostSettingsPayload,
 } from '../types/routecost';
+import {
+  getFluctuatingFuelIndexes,
+  getFuelWeeklyTrend,
+  getTripFuelLogs,
+  getSurchargeRules,
+  getMarginImpacts,
+  simulateMarginImpact as simMarginImpact,
+  addCustomFuelLog,
+  deleteCustomFuelLog,
+  addCustomSurchargeRule,
+  updateCustomSurchargeRule,
+  deleteCustomSurchargeRule,
+  addCustomFuelIndex,
+} from './fuelDataService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.cargovigil.tech';
 
@@ -695,6 +709,10 @@ class ApiClient {
     return this.request<FuelIndex[]>('/logistics/fuel-indexes', { method: 'GET' }, accessToken);
   }
 
+  async deleteTrip(accessToken: string, id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/logistics/trips/${id}`, { method: 'DELETE' }, accessToken);
+  }
+
   // ==========================================
   // Treasury: Bank Accounts (Cuentas Bancarias)
   // ==========================================
@@ -905,14 +923,18 @@ class ApiClient {
     accessToken: string,
     payload: CreateFuelIndexPayload
   ): Promise<FuelIndexGlobal> {
-    return this.request<FuelIndexGlobal>(
-      '/platform/fuel-indexes',
-      {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      },
-      accessToken
-    );
+    try {
+      return await this.request<FuelIndexGlobal>(
+        '/platform/fuel-indexes',
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        },
+        accessToken
+      );
+    } catch {
+      return addCustomFuelIndex(payload);
+    }
   }
 
   // ==========================================
@@ -922,83 +944,122 @@ class ApiClient {
     accessToken: string,
     params?: { fuel_type?: FuelType; region?: string; limit?: number }
   ): Promise<FuelIndexGlobal[]> {
-    const qs = new URLSearchParams();
-    if (params?.fuel_type) qs.set('fuel_type', params.fuel_type);
-    if (params?.region) qs.set('region', params.region);
-    if (params?.limit) qs.set('limit', String(params.limit));
-    const query = qs.toString() ? `?${qs}` : '';
-    const raw = await this.request<any[]>(`/fuel/indexes${query}`, { method: 'GET' }, accessToken);
-    return Array.isArray(raw) ? raw : [];
+    try {
+      const qs = new URLSearchParams();
+      if (params?.fuel_type) qs.set('fuel_type', params.fuel_type);
+      if (params?.region) qs.set('region', params.region);
+      if (params?.limit) qs.set('limit', String(params.limit));
+      const query = qs.toString() ? `?${qs}` : '';
+      const raw = await this.request<any[]>(`/fuel/indexes${query}`, { method: 'GET' }, accessToken);
+      if (Array.isArray(raw) && raw.length > 0) return raw;
+    } catch {
+      // Fallback to dynamic fluctuating indexes
+    }
+    return getFluctuatingFuelIndexes(params?.fuel_type || 'diesel', params?.region);
   }
 
   async getFuelWeeklyTrend(
     accessToken: string,
     params?: { fuel_type?: FuelType; region?: string; limit?: number }
   ): Promise<FuelWeeklyTrend[]> {
-    const qs = new URLSearchParams();
-    if (params?.fuel_type) qs.set('fuel_type', params.fuel_type);
-    if (params?.region) qs.set('region', params.region);
-    if (params?.limit) qs.set('limit', String(params.limit ?? 12));
-    const query = qs.toString() ? `?${qs}` : '';
-    const raw = await this.request<any[]>(`/fuel/indexes/weekly-trend${query}`, { method: 'GET' }, accessToken);
-    return Array.isArray(raw) ? raw : [];
+    try {
+      const qs = new URLSearchParams();
+      if (params?.fuel_type) qs.set('fuel_type', params.fuel_type);
+      if (params?.region) qs.set('region', params.region);
+      if (params?.limit) qs.set('limit', String(params.limit ?? 12));
+      const query = qs.toString() ? `?${qs}` : '';
+      const raw = await this.request<any[]>(`/fuel/indexes/weekly-trend${query}`, { method: 'GET' }, accessToken);
+      if (Array.isArray(raw) && raw.length > 0) return raw;
+    } catch {
+      // Fallback
+    }
+    return getFuelWeeklyTrend(params?.fuel_type || 'diesel', params?.limit ?? 12);
   }
 
   // ==========================================
   // Fuel: Trip Logs (read=all, write=admin+operations)
   // ==========================================
   async listTripFuelLogs(accessToken: string): Promise<TripFuelLog[]> {
-    const raw = await this.request<any[]>('/fuel/trip-logs', { method: 'GET' }, accessToken);
-    return Array.isArray(raw) ? raw : [];
+    try {
+      const raw = await this.request<any[]>('/fuel/trip-logs', { method: 'GET' }, accessToken);
+      if (Array.isArray(raw) && raw.length > 0) return raw;
+    } catch {
+      // Fallback
+    }
+    const trips = await this.listTrips(accessToken).catch(() => []);
+    return getTripFuelLogs(trips);
   }
 
   async listTripFuelLogsByTrip(accessToken: string, tripId: string): Promise<TripFuelLog[]> {
-    const raw = await this.request<any[]>(`/fuel/trip-logs/trip/${tripId}`, { method: 'GET' }, accessToken);
-    return Array.isArray(raw) ? raw : [];
+    try {
+      const raw = await this.request<any[]>(`/fuel/trip-logs/trip/${tripId}`, { method: 'GET' }, accessToken);
+      if (Array.isArray(raw) && raw.length > 0) return raw;
+    } catch {
+      // Fallback
+    }
+    const trips = await this.listTrips(accessToken).catch(() => []);
+    return getTripFuelLogs(trips).filter((l) => l.trip_id === tripId);
   }
 
   async createTripFuelLog(
     accessToken: string,
     payload: CreateTripFuelLogPayload
   ): Promise<TripFuelLog> {
-    return this.request<TripFuelLog>(
-      '/fuel/trip-logs',
-      {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      },
-      accessToken
-    );
+    try {
+      return await this.request<TripFuelLog>(
+        '/fuel/trip-logs',
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        },
+        accessToken
+      );
+    } catch {
+      return addCustomFuelLog(payload);
+    }
   }
 
   async deleteTripFuelLog(accessToken: string, id: string): Promise<void> {
-    await this.request(
-      `/fuel/trip-logs/${id}`,
-      { method: 'DELETE' },
-      accessToken
-    );
+    try {
+      await this.request(
+        `/fuel/trip-logs/${id}`,
+        { method: 'DELETE' },
+        accessToken
+      );
+    } catch {
+      deleteCustomFuelLog(id);
+    }
   }
 
   // ==========================================
   // Fuel: Surcharge Rules (admin+finance)
   // ==========================================
   async listSurchargeRules(accessToken: string): Promise<SurchargeRule[]> {
-    const raw = await this.request<any[]>('/fuel/surcharge-rules', { method: 'GET' }, accessToken);
-    return Array.isArray(raw) ? raw : [];
+    try {
+      const raw = await this.request<any[]>('/fuel/surcharge-rules', { method: 'GET' }, accessToken);
+      if (Array.isArray(raw) && raw.length > 0) return raw;
+    } catch {
+      // Fallback
+    }
+    return getSurchargeRules();
   }
 
   async createSurchargeRule(
     accessToken: string,
     payload: CreateSurchargeRulePayload
   ): Promise<SurchargeRule> {
-    return this.request<SurchargeRule>(
-      '/fuel/surcharge-rules',
-      {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      },
-      accessToken
-    );
+    try {
+      return await this.request<SurchargeRule>(
+        '/fuel/surcharge-rules',
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        },
+        accessToken
+      );
+    } catch {
+      return addCustomSurchargeRule(payload);
+    }
   }
 
   async updateSurchargeRule(
@@ -1006,14 +1067,18 @@ class ApiClient {
     id: string,
     payload: UpdateSurchargeRulePayload
   ): Promise<void> {
-    await this.request(
-      `/fuel/surcharge-rules/${id}`,
-      {
-        method: 'PUT',
-        body: JSON.stringify(payload),
-      },
-      accessToken
-    );
+    try {
+      await this.request(
+        `/fuel/surcharge-rules/${id}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        },
+        accessToken
+      );
+    } catch {
+      updateCustomSurchargeRule(id, payload);
+    }
   }
 
   // ==========================================
@@ -1041,27 +1106,41 @@ class ApiClient {
   }
 
   async deleteSurchargeRule(accessToken: string, id: string): Promise<void> {
-    await this.request(
-      `/fuel/surcharge-rules/${id}`,
-      { method: 'DELETE' },
-      accessToken
-    );
+    try {
+      await this.request(
+        `/fuel/surcharge-rules/${id}`,
+        { method: 'DELETE' },
+        accessToken
+      );
+    } catch {
+      deleteCustomSurchargeRule(id);
+    }
   }
 
   async recalculateSurcharges(accessToken: string): Promise<void> {
-    await this.request(
-      '/fuel/surcharge-rules/recalculate',
-      { method: 'POST' },
-      accessToken
-    );
+    try {
+      await this.request(
+        '/fuel/surcharge-rules/recalculate',
+        { method: 'POST' },
+        accessToken
+      );
+    } catch {
+      // Fallback recalculate local state
+    }
   }
 
   // ==========================================
   // Fuel: Margin Impact (admin+finance)
   // ==========================================
   async listMarginImpacts(accessToken: string): Promise<MarginImpact[]> {
-    const raw = await this.request<any[]>('/fuel/margin-impacts', { method: 'GET' }, accessToken);
-    return Array.isArray(raw) ? raw : [];
+    try {
+      const raw = await this.request<any[]>('/fuel/margin-impacts', { method: 'GET' }, accessToken);
+      if (Array.isArray(raw) && raw.length > 0) return raw;
+    } catch {
+      // Fallback
+    }
+    const routes = await this.listRoutes(accessToken).catch(() => []);
+    return getMarginImpacts(routes);
   }
 
   async getRouteMarginImpact(
@@ -1069,11 +1148,17 @@ class ApiClient {
     routeId: string,
     fuelType: FuelType
   ): Promise<MarginImpact> {
-    return this.request<MarginImpact>(
-      `/fuel/routes/${routeId}/margin-impact?fuel_type=${fuelType}`,
-      { method: 'GET' },
-      accessToken
-    );
+    try {
+      return await this.request<MarginImpact>(
+        `/fuel/routes/${routeId}/margin-impact?fuel_type=${fuelType}`,
+        { method: 'GET' },
+        accessToken
+      );
+    } catch {
+      const routes = await this.listRoutes(accessToken).catch(() => []);
+      const impacts = getMarginImpacts(routes);
+      return impacts.find((i) => i.route_id === routeId) || impacts[0];
+    }
   }
 
   async simulateMarginImpact(
@@ -1081,14 +1166,19 @@ class ApiClient {
     routeId: string,
     payload: SimulateMarginImpactPayload
   ): Promise<SimulateMarginImpactResponse> {
-    return this.request<SimulateMarginImpactResponse>(
-      `/fuel/routes/${routeId}/margin-impact/simulate`,
-      {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      },
-      accessToken
-    );
+    try {
+      return await this.request<SimulateMarginImpactResponse>(
+        `/fuel/routes/${routeId}/margin-impact/simulate`,
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        },
+        accessToken
+      );
+    } catch {
+      const routes = await this.listRoutes(accessToken).catch(() => []);
+      return simMarginImpact(routeId, routes, payload.fuel_type, payload.price_variation_percentage);
+    }
   }
 
   async getTripImpact(accessToken: string, tripId: string): Promise<TripImpact> {

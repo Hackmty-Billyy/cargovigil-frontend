@@ -279,7 +279,7 @@ export const SecuritySettingsModal: React.FC<SecuritySettingsModalProps> = ({ on
               <button
                 type="submit"
                 disabled={loading || verifyCode.length < 6}
-                className="w-full py-3.5 px-4 rounded-xl bg-[#776de8] hover:bg-[#685ddb] text-white font-bold text-xs shadow-md shadow-[#776de8]/25 flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer"
+                className="w-full py-3.5 px-4 rounded-xl bg-[#776de8] hover:bg-[#685ddb] text-white font-bold text-xs  flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer"
               >
                 {loading ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

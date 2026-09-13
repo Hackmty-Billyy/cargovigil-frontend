@@ -291,7 +291,7 @@ export const TripImpactModal: React.FC<TripImpactModalProps> = ({ trip, canWrite
           {canWrite && (
             <button
               onClick={() => setShowForm((v) => !v)}
-              className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#776de8] to-[#8f85f3] text-white text-[11px] font-semibold flex items-center gap-1.5 shadow-lg shadow-[#776de8]/20 transition cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               Registrar fricción
@@ -395,7 +395,7 @@ export const TripImpactModal: React.FC<TripImpactModalProps> = ({ trip, canWrite
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#776de8] to-[#8f85f3] text-white text-xs font-semibold shadow-lg shadow-[#776de8]/25 transition cursor-pointer disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition cursor-pointer disabled:opacity-50"
               >
                 {isSubmitting ? 'Guardando...' : 'Registrar'}
               </button>

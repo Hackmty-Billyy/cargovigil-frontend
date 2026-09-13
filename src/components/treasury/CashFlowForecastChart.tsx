@@ -137,7 +137,7 @@ export const CashFlowForecastChart: React.FC<CashFlowForecastChartProps> = ({
   const zeroY = getY(0);
 
   return (
-    <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-6 shadow-xl backdrop-blur-md space-y-6">
+    <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-6 backdrop-blur-md space-y-6">
       {/* Header with Title, Controls & Recalculate CTA */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
@@ -162,7 +162,7 @@ export const CashFlowForecastChart: React.FC<CashFlowForecastChartProps> = ({
               onClick={() => onDaysChange(30)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 days === 30
-                  ? 'bg-[#776de8] text-white shadow-md shadow-[#776de8]/30'
+                  ? 'bg-blue-600 text-white'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -172,7 +172,7 @@ export const CashFlowForecastChart: React.FC<CashFlowForecastChartProps> = ({
               onClick={() => onDaysChange(60)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 days === 60
-                  ? 'bg-[#776de8] text-white shadow-md shadow-[#776de8]/30'
+                  ? 'bg-blue-600 text-white'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -184,7 +184,7 @@ export const CashFlowForecastChart: React.FC<CashFlowForecastChartProps> = ({
           <button
             onClick={handleRecalculate}
             disabled={isRecalculating || isLoading}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#776de8] to-[#8f85f3] hover:from-[#6b61db] hover:to-[#7f74ea] text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-[#776de8]/25 transition cursor-pointer disabled:opacity-50"
+            className="px-4 py-2 rounded-xl bg-blue-600 hover:from-[#6b61db] hover:to-[#7f74ea] text-white font-semibold text-xs flex items-center gap-2  transition cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRecalculating || isLoading ? 'animate-spin' : ''}`} />
             <span>{isRecalculating ? 'Recalculando...' : 'Recalcular Flujo'}</span>
@@ -427,11 +427,11 @@ export const CashFlowForecastChart: React.FC<CashFlowForecastChartProps> = ({
             </div>
             <div className="text-[10px]">
               {hoveredPoint.balance < 0 ? (
-                <span className="text-red-400 font-semibold">⚠️ Déficit de liquidez negativo</span>
+                <span className="text-red-400 font-semibold"> Déficit de liquidez negativo</span>
               ) : hoveredPoint.balance < minReserveAmount ? (
-                <span className="text-amber-400 font-semibold">⚠️ Por debajo de reserva mínima</span>
+                <span className="text-amber-400 font-semibold"> Por debajo de reserva mínima</span>
               ) : (
-                <span className="text-emerald-400 font-semibold">✓ Saldo seguro y solvente</span>
+                <span className="text-emerald-400 font-semibold"> Saldo seguro y solvente</span>
               )}
             </div>
           </div>
