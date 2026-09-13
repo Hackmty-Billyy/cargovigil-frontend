@@ -50,7 +50,8 @@ export interface Expense {
   updated_at: string;
 }
 
-export type AlertSeverity = 'critical' | 'warning' | 'info';
+// Las que emite el backend (domain/treasury/service.go: severityFor).
+export type AlertSeverity = 'critical' | 'high' | 'medium' | 'low';
 
 export interface CashAlert {
   id: string;
