@@ -14,9 +14,6 @@ export const LandingNavbar: React.FC<LandingNavbarProps> = ({
 }) => {
   const navItems = [
     { id: 'home', label: 'Home' },
-    { id: 'about', label: 'Nosotros' },
-    { id: 'services', label: 'Servicios' },
-    { id: 'pricing', label: 'Planes' },
     { id: 'contact', label: 'Contacto' },
   ];
 
