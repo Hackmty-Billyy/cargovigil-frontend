@@ -381,6 +381,12 @@ export const PlatformCompaniesView: React.FC = () => {
                 </p>
               </div>
 
+              <p className="text-[10.5px] text-slate-500 leading-relaxed">
+                Se creará esta cuenta en nombre del admin fundador. Al primer inicio de sesión se
+                le pedirá aceptar el Aviso de Privacidad (incluido el tratamiento de los datos
+                financieros de su empresa) antes de darle acceso al panel.
+              </p>
+
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"

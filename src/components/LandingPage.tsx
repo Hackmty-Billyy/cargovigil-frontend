@@ -16,9 +16,10 @@ import {
 
 interface LandingPageProps {
   onOpenLogin: () => void;
+  onOpenPrivacy: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenPrivacy }) => {
   return (
     <div className="w-full bg-gray-950 text-gray-100">
 
@@ -382,8 +383,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin }) => {
             </div>
           </div>
 
-          <div className="pt-6 text-center text-xs text-gray-600">
-            &copy; {new Date().getFullYear()} CargoVigil Technologies. Todos los derechos reservados.
+          <div className="pt-6 text-center text-xs text-gray-600 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-3">
+            <span>&copy; {new Date().getFullYear()} CargoVigil Technologies. Todos los derechos reservados.</span>
+            <button
+              type="button"
+              onClick={onOpenPrivacy}
+              className="text-gray-500 hover:text-gray-300 transition cursor-pointer underline underline-offset-2"
+            >
+              Aviso de Privacidad
+            </button>
           </div>
         </div>
       </section>

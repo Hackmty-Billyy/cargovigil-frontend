@@ -8,12 +8,24 @@ import { TOTPVerificationModal } from './components/TOTPVerificationModal';
 import { SecuritySettingsModal } from './components/SecuritySettingsModal';
 import { Dashboard } from './components/Dashboard';
 import { LogisticsLiveRadarView } from './components/logistics/LogisticsLiveRadarView';
+import { PrivacyNoticePage } from './components/legal/PrivacyNoticePage';
+import { PrivacyConsentModal } from './components/legal/PrivacyConsentModal';
+import { hasAcceptedPrivacyNotice } from './components/legal/privacyConsentStorage';
 
 const AppContent: React.FC = () => {
   const { user, pendingMFAToken, loading } = useAuth();
   const [currentPath, setCurrentPath] = useState<string>(() => window.location.pathname);
   const [showSecurityModal, setShowSecurityModal] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  // Tracks a just-accepted userId for THIS render session — a plain click
+  // handler, not an effect, so no cascading setState-in-effect. Combined
+  // with hasAcceptedPrivacyNotice (localStorage) below to derive the gate:
+  // if a different user logs in on this browser, this won't match their id
+  // and the gate falls back to checking storage for them.
+  const [justAcceptedUserId, setJustAcceptedUserId] = useState<string | null>(null);
+  const privacyAccepted = user
+    ? justAcceptedUserId === user.id || hasAcceptedPrivacyNotice(user.id)
+    : false;
 
   // Sync with browser URL (popstate for Back/Forward buttons)
   useEffect(() => {
@@ -40,8 +52,23 @@ const AppContent: React.FC = () => {
     );
   }
 
+  // The privacy notice is public: reachable logged in or out, and it wins
+  // over the consent gate below (you can always go read it in full).
+  if (currentPath === '/privacidad') {
+    return <PrivacyNoticePage onBack={() => navigateTo('/')} />;
+  }
+
   // 1. If user is authenticated, render either /radar or /dashboard
   if (user) {
+    // Gate: LFPDPPP requires express consent for the financial data
+    // Tesorería handles, so no authenticated screen renders until this is
+    // accepted for the current user.
+    if (!privacyAccepted) {
+      return (
+        <PrivacyConsentModal userId={user.id} onAccept={() => setJustAcceptedUserId(user.id)} />
+      );
+    }
+
     const isRadarRoute = currentPath === '/radar';
 
     return (
@@ -70,7 +97,7 @@ const AppContent: React.FC = () => {
       {pendingMFAToken && <TOTPVerificationModal />}
 
       {isLoginPage ? (
-        <LoginPage onBackToHome={() => navigateTo('/')} />
+        <LoginPage onBackToHome={() => navigateTo('/')} onOpenPrivacy={() => navigateTo('/privacidad')} />
       ) : (
         <div className="min-h-screen flex flex-col bg-gray-950">
           <LandingNavbar
@@ -78,7 +105,7 @@ const AppContent: React.FC = () => {
             setActiveSection={setActiveSection}
             onOpenLogin={() => navigateTo('/login')}
           />
-          <LandingPage onOpenLogin={() => navigateTo('/login')} />
+          <LandingPage onOpenLogin={() => navigateTo('/login')} onOpenPrivacy={() => navigateTo('/privacidad')} />
         </div>
       )}
     </div>

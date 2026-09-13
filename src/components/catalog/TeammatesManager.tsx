@@ -172,6 +172,13 @@ export const TeammatesManager: React.FC = () => {
               </div>
             </div>
 
+            <p className="text-[10.5px] text-slate-500 leading-relaxed">
+              Se creará la cuenta con estos datos en nombre de esa persona. Al primer inicio de
+              sesión se le pedirá aceptar el{' '}
+              <span className="text-slate-400">Aviso de Privacidad</span> antes de darle acceso al
+              panel.
+            </p>
+
             <div className="pt-2">
               <button
                 type="submit"

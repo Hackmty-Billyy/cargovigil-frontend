@@ -13,9 +13,10 @@ import {
 
 interface LoginPageProps {
   onBackToHome: () => void;
+  onOpenPrivacy: () => void;
 }
 
-export const LoginPage: React.FC<LoginPageProps> = ({ onBackToHome }) => {
+export const LoginPage: React.FC<LoginPageProps> = ({ onBackToHome, onOpenPrivacy }) => {
   const { login, error, clearError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -183,14 +184,23 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToHome }) => {
           </form>
 
           {/* Footer */}
-          <div className="pt-2 text-center text-xs text-gray-500">
-            <span>¿No tienes cuenta? </span>
+          <div className="pt-2 text-center text-xs text-gray-500 space-y-2">
+            <div>
+              <span>¿No tienes cuenta? </span>
+              <button
+                type="button"
+                onClick={onBackToHome}
+                className="font-semibold text-blue-400 hover:text-blue-300 transition cursor-pointer"
+              >
+                Contáctanos
+              </button>
+            </div>
             <button
               type="button"
-              onClick={onBackToHome}
-              className="font-semibold text-blue-400 hover:text-blue-300 transition cursor-pointer"
+              onClick={onOpenPrivacy}
+              className="text-gray-600 hover:text-gray-400 transition cursor-pointer underline underline-offset-2"
             >
-              Contáctanos
+              Aviso de Privacidad
             </button>
           </div>
         </div>
