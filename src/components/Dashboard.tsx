@@ -7,6 +7,7 @@ import { ClientsManager } from './catalog/ClientsManager';
 import { ContractsManager } from './catalog/ContractsManager';
 import { TeammatesManager } from './catalog/TeammatesManager';
 import { TreasuryDashboard } from './treasury/TreasuryDashboard';
+import { FuelDashboard } from './fuel/FuelDashboard';
 import {
   ShieldCheck,
   ShieldAlert,
@@ -23,6 +24,7 @@ import {
   Building2,
   Compass,
   Landmark,
+  Flame,
 } from 'lucide-react';
 import { LogisticsLiveRadarView } from './logistics/LogisticsLiveRadarView';
 
@@ -35,7 +37,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
   const isPlatformAdmin = user?.role_name === 'platform_admin';
   const isAdmin = user?.role_name === 'admin';
   const isFinance = user?.role_name === 'finance';
+  const isOperations = user?.role_name === 'operations';
   const canAccessTreasury = isAdmin || isFinance;
+  const canAccessFuel = isAdmin || isFinance || isOperations || isPlatformAdmin;
 
   // Active Tab state
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -199,6 +203,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
               </button>
             )}
 
+            {canAccessFuel && (
+              <button
+                onClick={() => setActiveTab('fuel')}
+                className={`px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shrink-0 ${
+                  activeTab === 'fuel'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/20'
+                    : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+                }`}
+              >
+                <Flame className="w-4 h-4 text-amber-400" />
+                <span>Combustible</span>
+              </button>
+            )}
+
             <button
               onClick={() => setActiveTab('vehicles')}
               className={`px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shrink-0 ${
@@ -280,6 +298,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
       <div className="transition-all duration-200">
         {activeTab === 'radar' && !isPlatformAdmin && <LogisticsLiveRadarView />}
         {activeTab === 'treasury' && canAccessTreasury && <TreasuryDashboard />}
+        {activeTab === 'fuel' && canAccessFuel && (
+          <FuelDashboard
+            isPlatformAdmin={isPlatformAdmin}
+            isAdmin={isAdmin}
+            isFinance={isFinance}
+            isOperations={isOperations}
+          />
+        )}
         {activeTab === 'platform' && isPlatformAdmin && <PlatformCompaniesView />}
         {activeTab === 'vehicles' && !isPlatformAdmin && <VehiclesManager />}
         {activeTab === 'routes' && !isPlatformAdmin && <RoutesManager />}

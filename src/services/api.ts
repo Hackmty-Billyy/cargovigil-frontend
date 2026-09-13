@@ -34,6 +34,20 @@ import type {
   CreateExpensePayload,
   PayExpensePayload,
 } from '../types/treasury';
+import type {
+  FuelIndex as FuelIndexGlobal,
+  FuelWeeklyTrend,
+  TripFuelLog,
+  SurchargeRule,
+  MarginImpact,
+  CreateFuelIndexPayload,
+  CreateTripFuelLogPayload,
+  CreateSurchargeRulePayload,
+  UpdateSurchargeRulePayload,
+  SimulateMarginImpactPayload,
+  SimulateMarginImpactResponse,
+  FuelType,
+} from '../types/fuel';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.cargovigil.tech';
 
@@ -783,6 +797,175 @@ class ApiClient {
       {
         method: 'PATCH',
         body: JSON.stringify({ is_resolved: resolved }),
+      },
+      accessToken
+    );
+  }
+
+  // ==========================================
+  // Platform: Fuel Indexes (platform_admin write)
+  // ==========================================
+  async createPlatformFuelIndex(
+    accessToken: string,
+    payload: CreateFuelIndexPayload
+  ): Promise<FuelIndexGlobal> {
+    return this.request<FuelIndexGlobal>(
+      '/platform/fuel-indexes',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+  }
+
+  // ==========================================
+  // Fuel: Indexes (any company role — read)
+  // ==========================================
+  async listFuelIndexes(
+    accessToken: string,
+    params?: { fuel_type?: FuelType; region?: string; limit?: number }
+  ): Promise<FuelIndexGlobal[]> {
+    const qs = new URLSearchParams();
+    if (params?.fuel_type) qs.set('fuel_type', params.fuel_type);
+    if (params?.region) qs.set('region', params.region);
+    if (params?.limit) qs.set('limit', String(params.limit));
+    const query = qs.toString() ? `?${qs}` : '';
+    const raw = await this.request<any[]>(`/fuel/indexes${query}`, { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw : [];
+  }
+
+  async getFuelWeeklyTrend(
+    accessToken: string,
+    params?: { fuel_type?: FuelType; region?: string; limit?: number }
+  ): Promise<FuelWeeklyTrend[]> {
+    const qs = new URLSearchParams();
+    if (params?.fuel_type) qs.set('fuel_type', params.fuel_type);
+    if (params?.region) qs.set('region', params.region);
+    if (params?.limit) qs.set('limit', String(params.limit ?? 12));
+    const query = qs.toString() ? `?${qs}` : '';
+    const raw = await this.request<any[]>(`/fuel/indexes/weekly-trend${query}`, { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw : [];
+  }
+
+  // ==========================================
+  // Fuel: Trip Logs (read=all, write=admin+operations)
+  // ==========================================
+  async listTripFuelLogs(accessToken: string): Promise<TripFuelLog[]> {
+    const raw = await this.request<any[]>('/fuel/trip-logs', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw : [];
+  }
+
+  async listTripFuelLogsByTrip(accessToken: string, tripId: string): Promise<TripFuelLog[]> {
+    const raw = await this.request<any[]>(`/fuel/trip-logs/trip/${tripId}`, { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw : [];
+  }
+
+  async createTripFuelLog(
+    accessToken: string,
+    payload: CreateTripFuelLogPayload
+  ): Promise<TripFuelLog> {
+    return this.request<TripFuelLog>(
+      '/fuel/trip-logs',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+  }
+
+  async deleteTripFuelLog(accessToken: string, id: string): Promise<void> {
+    await this.request(
+      `/fuel/trip-logs/${id}`,
+      { method: 'DELETE' },
+      accessToken
+    );
+  }
+
+  // ==========================================
+  // Fuel: Surcharge Rules (admin+finance)
+  // ==========================================
+  async listSurchargeRules(accessToken: string): Promise<SurchargeRule[]> {
+    const raw = await this.request<any[]>('/fuel/surcharge-rules', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw : [];
+  }
+
+  async createSurchargeRule(
+    accessToken: string,
+    payload: CreateSurchargeRulePayload
+  ): Promise<SurchargeRule> {
+    return this.request<SurchargeRule>(
+      '/fuel/surcharge-rules',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+  }
+
+  async updateSurchargeRule(
+    accessToken: string,
+    id: string,
+    payload: UpdateSurchargeRulePayload
+  ): Promise<void> {
+    await this.request(
+      `/fuel/surcharge-rules/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+  }
+
+  async deleteSurchargeRule(accessToken: string, id: string): Promise<void> {
+    await this.request(
+      `/fuel/surcharge-rules/${id}`,
+      { method: 'DELETE' },
+      accessToken
+    );
+  }
+
+  async recalculateSurcharges(accessToken: string): Promise<void> {
+    await this.request(
+      '/fuel/surcharge-rules/recalculate',
+      { method: 'POST' },
+      accessToken
+    );
+  }
+
+  // ==========================================
+  // Fuel: Margin Impact (admin+finance)
+  // ==========================================
+  async listMarginImpacts(accessToken: string): Promise<MarginImpact[]> {
+    const raw = await this.request<any[]>('/fuel/margin-impacts', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw : [];
+  }
+
+  async getRouteMarginImpact(
+    accessToken: string,
+    routeId: string,
+    fuelType: FuelType
+  ): Promise<MarginImpact> {
+    return this.request<MarginImpact>(
+      `/fuel/routes/${routeId}/margin-impact?fuel_type=${fuelType}`,
+      { method: 'GET' },
+      accessToken
+    );
+  }
+
+  async simulateMarginImpact(
+    accessToken: string,
+    routeId: string,
+    payload: SimulateMarginImpactPayload
+  ): Promise<SimulateMarginImpactResponse> {
+    return this.request<SimulateMarginImpactResponse>(
+      `/fuel/routes/${routeId}/margin-impact/simulate`,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
       },
       accessToken
     );
