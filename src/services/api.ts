@@ -15,6 +15,13 @@ import type {
   InviteTeammatePayload,
   InviteTeammateResponse,
 } from '../types/company';
+import type {
+  Trip,
+  FuelIndex,
+  PreTripProjectionRequest,
+  PreTripProjectionResponse,
+  CreateTripPayload,
+} from '../types/logistics';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.cargovigil.tech';
 
@@ -362,6 +369,63 @@ class ApiClient {
       { method: 'DELETE' },
       accessToken
     );
+  }
+
+  // ==========================================
+  // Logistics: Trips, Map & Real-time Simulation
+  // ==========================================
+  async listTrips(accessToken: string): Promise<Trip[]> {
+    return this.request<Trip[]>('/logistics/trips', { method: 'GET' }, accessToken);
+  }
+
+  async getTrip(accessToken: string, id: string): Promise<Trip> {
+    return this.request<Trip>(`/logistics/trips/${id}`, { method: 'GET' }, accessToken);
+  }
+
+  async calculateTripProjection(
+    accessToken: string,
+    payload: PreTripProjectionRequest
+  ): Promise<PreTripProjectionResponse> {
+    return this.request<PreTripProjectionResponse>(
+      '/logistics/trips/projection',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+  }
+
+  async createTrip(
+    accessToken: string,
+    payload: CreateTripPayload
+  ): Promise<Trip> {
+    return this.request<Trip>(
+      '/logistics/trips',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+  }
+
+  async advanceTripSimulation(
+    accessToken: string,
+    tripId?: string
+  ): Promise<{ message: string; trips: Trip[] }> {
+    return this.request<{ message: string; trips: Trip[] }>(
+      '/logistics/trips/advance-simulation',
+      {
+        method: 'POST',
+        body: JSON.stringify({ trip_id: tripId || null }),
+      },
+      accessToken
+    );
+  }
+
+  async getFuelIndexes(accessToken: string): Promise<FuelIndex[]> {
+    return this.request<FuelIndex[]>('/logistics/fuel-indexes', { method: 'GET' }, accessToken);
   }
 }
 

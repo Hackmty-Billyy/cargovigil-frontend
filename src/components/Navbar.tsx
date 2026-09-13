@@ -58,6 +58,43 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSecurity }) => {
           </div>
         </div>
 
+        {/* View switcher navigation */}
+        {user && (
+          <nav className="hidden sm:flex items-center gap-1 bg-slate-950/60 p-1 rounded-xl border border-slate-800">
+            <button
+              onClick={() => {
+                if (window.location.pathname !== '/dashboard') {
+                  window.history.pushState({}, '', '/dashboard');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                window.location.pathname !== '/radar'
+                  ? 'bg-[#776de8] text-white shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Catálogo & Control
+            </button>
+            <button
+              onClick={() => {
+                if (window.location.pathname !== '/radar') {
+                  window.history.pushState({}, '', '/radar');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+                window.location.pathname === '/radar'
+                  ? 'bg-[#776de8] text-white shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Radar & Mapas</span>
+            </button>
+          </nav>
+        )}
+
         {/* User profile & Controls */}
         {user && (
           <div className="flex items-center gap-3">

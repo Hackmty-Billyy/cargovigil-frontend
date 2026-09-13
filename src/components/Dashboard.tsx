@@ -20,7 +20,9 @@ import {
   Users,
   FileText,
   Building2,
+  Compass,
 } from 'lucide-react';
+import { LogisticsLiveRadarView } from './logistics/LogisticsLiveRadarView';
 
 interface DashboardProps {
   onOpenSecurity: () => void;
@@ -162,6 +164,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
         ) : (
           <>
             <button
+              onClick={() => setActiveTab('radar')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shrink-0 ${
+                activeTab === 'radar'
+                  ? 'bg-gradient-to-r from-[#776de8] to-[#8f85f3] text-white shadow-lg shadow-[#776de8]/30'
+                  : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+              }`}
+            >
+              <Compass className="w-4 h-4 text-emerald-400" />
+              <span>Radar & Mapa en Vivo</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('vehicles')}
               className={`px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shrink-0 ${
                 activeTab === 'vehicles'
@@ -240,6 +254,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
 
       {/* Main Tab Content */}
       <div className="transition-all duration-200">
+        {activeTab === 'radar' && !isPlatformAdmin && <LogisticsLiveRadarView />}
         {activeTab === 'platform' && isPlatformAdmin && <PlatformCompaniesView />}
         {activeTab === 'vehicles' && !isPlatformAdmin && <VehiclesManager />}
         {activeTab === 'routes' && !isPlatformAdmin && <RoutesManager />}
