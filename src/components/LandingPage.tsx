@@ -78,7 +78,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenLogin, onOpenPri
                 { label: 'Fletes activos', value: '$124,500', sub: '8 en tránsito', icon: DollarSign, color: 'text-blue-400', bg: 'bg-blue-900/20' },
                 { label: 'En movimiento', value: '8', sub: 'Unidades activas', icon: Activity, color: 'text-cyan-400', bg: 'bg-cyan-900/20' },
                 { label: 'Fricciones', value: '1', sub: 'Atención requerida', icon: TrendingUp, color: 'text-red-400', bg: 'bg-red-900/20' },
-                { label: 'Completados', value: '23', sub: 'POD cerrados', icon: CheckCircle2, color: 'text-emerald-400', bg: 'bg-emerald-900/20' },
+                { label: 'Completados', value: '23', sub: 'POD cerrados', icon: Activity, color: 'text-emerald-400', bg: 'bg-emerald-900/20' },
               ].map((card) => {
                 const Icon = card.icon;
                 return (
