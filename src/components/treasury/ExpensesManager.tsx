@@ -189,6 +189,10 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
         return { label: 'Tasas Portuarias', icon: Anchor, color: 'text-blue-400 bg-blue-500/10 border-blue-500/30' };
       case 'insurance':
         return { label: 'Seguros / Pólizas', icon: Shield, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' };
+      case 'contingency_reserve':
+        // Generada por el módulo 2: no es un pagadero real, es liquidez
+        // apartada para un viaje. Se distingue para no confundirla con un gasto.
+        return { label: 'Colchón de Contingencia', icon: Layers, color: 'text-[#bbb3ff] bg-[#776de8]/15 border-[#776de8]/40' };
       default:
         return { label: 'Otros Gastos', icon: Receipt, color: 'text-slate-300 bg-slate-800 border-slate-700' };
     }
@@ -279,6 +283,7 @@ export const ExpensesManager: React.FC<ExpensesManagerProps> = ({
             <option value="driver_payroll">Nómina Operadores</option>
             <option value="port_fees">Tasas Portuarias</option>
             <option value="insurance">Seguros</option>
+            <option value="contingency_reserve">Colchón de Contingencia</option>
             <option value="other">Otros</option>
           </select>
 

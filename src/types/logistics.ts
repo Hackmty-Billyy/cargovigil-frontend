@@ -62,6 +62,8 @@ export interface PreTripProjectionRequest {
   distance_km: number;
   cargo_weight_tons: number;
   agreed_price: number;
+  /** Moneda en la que viene agreed_price; la proyeccion regresa todo en ella. */
+  currency: string;
 }
 
 export interface PreTripProjectionResponse {

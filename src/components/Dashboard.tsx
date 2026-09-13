@@ -8,6 +8,7 @@ import { ContractsManager } from './catalog/ContractsManager';
 import { TeammatesManager } from './catalog/TeammatesManager';
 import { TreasuryDashboard } from './treasury/TreasuryDashboard';
 import { FuelDashboard } from './fuel/FuelDashboard';
+import { RouteCostDashboard } from './routecost/RouteCostDashboard';
 import {
   ShieldCheck,
   ShieldAlert,
@@ -25,6 +26,7 @@ import {
   Compass,
   Landmark,
   Flame,
+  Timer,
 } from 'lucide-react';
 import { LogisticsLiveRadarView } from './logistics/LogisticsLiveRadarView';
 
@@ -57,6 +59,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
       if (activeTab === 'platform' || activeTab === 'teammates') {
         setActiveTab('treasury');
       }
+      // 'routecost' sí es accesible para finance: la lectura del módulo 2 está
+      // abierta a los tres roles de empresa y el colchón es cosa suya.
     } else {
       if (activeTab === 'platform') {
         setActiveTab('radar');
@@ -218,6 +222,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
             )}
 
             <button
+              onClick={() => setActiveTab('routecost')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shrink-0 ${
+                activeTab === 'routecost'
+                  ? 'bg-gradient-to-r from-[#776de8] to-indigo-600 text-white shadow-lg shadow-[#776de8]/30'
+                  : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+              }`}
+            >
+              <Timer className="w-4 h-4 text-amber-400" />
+              <span>Fricciones & Costos</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('vehicles')}
               className={`px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shrink-0 ${
                 activeTab === 'vehicles'
@@ -306,6 +322,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
             isOperations={isOperations}
           />
         )}
+        {activeTab === 'routecost' && !isPlatformAdmin && <RouteCostDashboard />}
         {activeTab === 'platform' && isPlatformAdmin && <PlatformCompaniesView />}
         {activeTab === 'vehicles' && !isPlatformAdmin && <VehiclesManager />}
         {activeTab === 'routes' && !isPlatformAdmin && <RoutesManager />}

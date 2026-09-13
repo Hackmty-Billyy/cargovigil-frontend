@@ -48,8 +48,104 @@ import type {
   SimulateMarginImpactResponse,
   FuelType,
 } from '../types/fuel';
+import type {
+  Friction,
+  RouteRiskProfile,
+  ContingencyFund,
+  TripImpact,
+  CostSettings,
+  RegisterFrictionPayload,
+  CloseFrictionPayload,
+  UpdateCostSettingsPayload,
+} from '../types/routecost';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.cargovigil.tech';
+
+// Los importes llegan como number desde Go, pero un NUMERIC serializado por un
+// driver distinto podría llegar como string: num() deja la UI a salvo de eso y
+// de los nulos, que en las tablas se formatean igual que un cero.
+function num(value: any, fallback = 0): number {
+  const parsed = typeof value === 'string' ? parseFloat(value) : value;
+  return typeof parsed === 'number' && !Number.isNaN(parsed) ? parsed : fallback;
+}
+
+function normalizeFriction(raw: any): Friction {
+  return {
+    id: raw.id || '',
+    company_id: raw.company_id || '',
+    trip_id: raw.trip_id || '',
+    event_type: raw.event_type || 'traffic_congestion',
+    location_name: raw.location_name ?? null,
+    started_at: raw.started_at || new Date().toISOString(),
+    ended_at: raw.ended_at ?? null,
+    duration_hours: num(raw.duration_hours),
+    cost_impact: num(raw.cost_impact),
+    opportunity_cost: num(raw.opportunity_cost),
+    notes: raw.notes ?? null,
+    created_at: raw.created_at || new Date().toISOString(),
+    trip_tracking_code: raw.trip_tracking_code || '',
+    trip_status: raw.trip_status || '',
+    route_origin: raw.route_origin || '',
+    route_destination: raw.route_destination || '',
+  };
+}
+
+function normalizeRouteRiskProfile(raw: any): RouteRiskProfile {
+  return {
+    id: raw.id || '',
+    company_id: raw.company_id || '',
+    route_id: raw.route_id || '',
+    historical_risk_score: num(raw.historical_risk_score, 1),
+    avg_delay_hours: num(raw.avg_delay_hours),
+    suggested_contingency_percentage: num(raw.suggested_contingency_percentage, 5),
+    incident_count: num(raw.incident_count),
+    last_calculated_at: raw.last_calculated_at || new Date().toISOString(),
+    route_origin: raw.route_origin || '',
+    route_destination: raw.route_destination || '',
+    route_distance_km: raw.route_distance_km ?? null,
+  };
+}
+
+function normalizeContingencyFund(raw: any): ContingencyFund {
+  return {
+    id: raw.id || '',
+    company_id: raw.company_id || '',
+    trip_id: raw.trip_id || '',
+    route_risk_score: num(raw.route_risk_score, 1),
+    applied_percentage: num(raw.applied_percentage),
+    base_amount: num(raw.base_amount),
+    base_currency: raw.base_currency || 'USD',
+    fx_rate: num(raw.fx_rate, 1),
+    reserve_currency: raw.reserve_currency || 'MXN',
+    allocated_amount: num(raw.allocated_amount),
+    consumed_amount: num(raw.consumed_amount),
+    released_amount: num(raw.released_amount),
+    status: raw.status || 'allocated',
+    reserve_expense_id: raw.reserve_expense_id ?? null,
+    calculated_at: raw.calculated_at || new Date().toISOString(),
+    created_at: raw.created_at || new Date().toISOString(),
+    updated_at: raw.updated_at || new Date().toISOString(),
+    trip_tracking_code: raw.trip_tracking_code || '',
+    trip_status: raw.trip_status || '',
+    route_origin: raw.route_origin || '',
+    route_destination: raw.route_destination || '',
+  };
+}
+
+function normalizeTripImpact(raw: any): TripImpact {
+  return {
+    trip_id: raw.trip_id || '',
+    currency: raw.currency || 'USD',
+    friction_count: num(raw.friction_count),
+    open_friction_count: num(raw.open_friction_count),
+    total_idle_hours: num(raw.total_idle_hours),
+    direct_cost: num(raw.direct_cost),
+    opportunity_cost: num(raw.opportunity_cost),
+    total_friction_impact: num(raw.total_friction_impact),
+    idle_hourly_rate: num(raw.idle_hourly_rate),
+    contingency_fund: raw.contingency_fund ? normalizeContingencyFund(raw.contingency_fund) : null,
+  };
+}
 
 function normalizeCompany(raw: any): Company {
   return {
@@ -920,6 +1016,30 @@ class ApiClient {
     );
   }
 
+  // ==========================================
+  // Módulo 2 — Fricciones en ruta, riesgo y colchón de contingencia
+  // ==========================================
+
+  /**
+   * El listado de viajes se lee de /logistics/trips (ya viene con vehículo,
+   * ruta y cliente resueltos); /routecost queda para lo propio del módulo 2.
+   */
+  async changeTripStatus(
+    accessToken: string,
+    tripId: string,
+    status: string,
+    actualArrivalDate?: string | null
+  ): Promise<void> {
+    await this.request(
+      `/routecost/trips/${tripId}/status`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ status, actual_arrival_date: actualArrivalDate || null }),
+      },
+      accessToken
+    );
+  }
+
   async deleteSurchargeRule(accessToken: string, id: string): Promise<void> {
     await this.request(
       `/fuel/surcharge-rules/${id}`,
@@ -969,6 +1089,125 @@ class ApiClient {
       },
       accessToken
     );
+  }
+
+  async getTripImpact(accessToken: string, tripId: string): Promise<TripImpact> {
+    const raw = await this.request<any>(`/routecost/trips/${tripId}/impact`, { method: 'GET' }, accessToken);
+    return normalizeTripImpact(raw);
+  }
+
+  async listFrictions(accessToken: string, onlyOpen: boolean = false): Promise<Friction[]> {
+    const raw = await this.request<any[]>(
+      `/routecost/frictions${onlyOpen ? '?open=true' : ''}`,
+      { method: 'GET' },
+      accessToken
+    );
+    return Array.isArray(raw) ? raw.map(normalizeFriction) : [];
+  }
+
+  async listTripFrictions(accessToken: string, tripId: string): Promise<Friction[]> {
+    const raw = await this.request<any[]>(`/routecost/trips/${tripId}/frictions`, { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeFriction) : [];
+  }
+
+  async registerFriction(
+    accessToken: string,
+    tripId: string,
+    payload: RegisterFrictionPayload
+  ): Promise<Friction> {
+    const raw = await this.request<any>(
+      `/routecost/trips/${tripId}/frictions`,
+      { method: 'POST', body: JSON.stringify(payload) },
+      accessToken
+    );
+    return normalizeFriction(raw);
+  }
+
+  async closeFriction(
+    accessToken: string,
+    frictionId: string,
+    payload: CloseFrictionPayload
+  ): Promise<Friction> {
+    const raw = await this.request<any>(
+      `/routecost/frictions/${frictionId}/close`,
+      { method: 'PATCH', body: JSON.stringify(payload) },
+      accessToken
+    );
+    return normalizeFriction(raw);
+  }
+
+  async listRouteRiskProfiles(accessToken: string): Promise<RouteRiskProfile[]> {
+    const raw = await this.request<any[]>('/routecost/risk-profiles', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeRouteRiskProfile) : [];
+  }
+
+  async recalculateRouteRisk(accessToken: string, routeId?: string): Promise<RouteRiskProfile[]> {
+    const raw = await this.request<any[]>(
+      `/routecost/risk-profiles/recalculate${routeId ? `?route_id=${routeId}` : ''}`,
+      { method: 'POST' },
+      accessToken
+    );
+    return Array.isArray(raw) ? raw.map(normalizeRouteRiskProfile) : [];
+  }
+
+  async listContingencyFunds(accessToken: string): Promise<ContingencyFund[]> {
+    const raw = await this.request<any[]>('/routecost/contingency', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeContingencyFund) : [];
+  }
+
+  async allocateContingency(accessToken: string, tripId: string): Promise<ContingencyFund> {
+    const raw = await this.request<any>(
+      `/routecost/trips/${tripId}/contingency/allocate`,
+      { method: 'POST' },
+      accessToken
+    );
+    return normalizeContingencyFund(raw);
+  }
+
+  async releaseContingency(accessToken: string, tripId: string): Promise<ContingencyFund> {
+    const raw = await this.request<any>(
+      `/routecost/trips/${tripId}/contingency/release`,
+      { method: 'POST' },
+      accessToken
+    );
+    return normalizeContingencyFund(raw);
+  }
+
+  /** Asigna colchón a los viajes abiertos que nunca lo tuvieron. */
+  async allocateMissingContingency(accessToken: string): Promise<number> {
+    const raw = await this.request<any>(
+      '/routecost/contingency/allocate-all',
+      { method: 'POST' },
+      accessToken
+    );
+    return num(raw?.allocated);
+  }
+
+  async getCostSettings(accessToken: string): Promise<CostSettings> {
+    const raw = await this.request<any>('/routecost/settings', { method: 'GET' }, accessToken);
+    return {
+      company_id: raw?.company_id || '',
+      idle_hourly_rate: raw?.idle_hourly_rate ?? null,
+      currency: raw?.currency || 'MXN',
+      updated_at: raw?.updated_at || new Date().toISOString(),
+    };
+  }
+
+  async updateCostSettings(
+    accessToken: string,
+    payload: UpdateCostSettingsPayload
+  ): Promise<CostSettings> {
+    const raw = await this.request<any>(
+      '/routecost/settings',
+      { method: 'PUT', body: JSON.stringify(payload) },
+      accessToken
+    );
+    return {
+      company_id: raw?.company_id || '',
+      idle_hourly_rate: raw?.idle_hourly_rate ?? null,
+      currency: raw?.currency || 'MXN',
+      updated_at: raw?.updated_at || new Date().toISOString(),
+    };
   }
 }
 
