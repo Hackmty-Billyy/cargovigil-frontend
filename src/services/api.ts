@@ -25,6 +25,67 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.cargovigil.tech';
 
+function normalizeCompany(raw: any): Company {
+  return {
+    id: raw.id || raw.ID || '',
+    name: raw.name || raw.Name || 'Sin Nombre',
+    is_active: raw.is_active !== undefined ? raw.is_active : (raw.IsActive !== undefined ? raw.IsActive : true),
+    created_at: raw.created_at || raw.CreatedAt || new Date().toISOString(),
+    updated_at: raw.updated_at || raw.UpdatedAt || new Date().toISOString(),
+  };
+}
+
+function normalizeVehicle(raw: any): Vehicle {
+  return {
+    id: raw.id || raw.ID || '',
+    company_id: raw.company_id || raw.CompanyID || '',
+    type: (raw.type || raw.Type || 'truck').toLowerCase() as any,
+    identifier: raw.identifier || raw.Identifier || raw.id || '',
+    is_active: raw.is_active !== undefined ? raw.is_active : (raw.IsActive !== undefined ? raw.IsActive : true),
+    created_at: raw.created_at || raw.CreatedAt || new Date().toISOString(),
+    updated_at: raw.updated_at || raw.UpdatedAt || new Date().toISOString(),
+  };
+}
+
+function normalizeRoute(raw: any): Route {
+  return {
+    id: raw.id || raw.ID || '',
+    company_id: raw.company_id || raw.CompanyID || '',
+    origin: raw.origin || raw.Origin || 'Origen',
+    destination: raw.destination || raw.Destination || 'Destino',
+    distance_km: raw.distance_km !== undefined ? raw.distance_km : (raw.DistanceKM !== undefined ? raw.DistanceKM : null),
+    is_active: raw.is_active !== undefined ? raw.is_active : (raw.IsActive !== undefined ? raw.IsActive : true),
+    created_at: raw.created_at || raw.CreatedAt || new Date().toISOString(),
+    updated_at: raw.updated_at || raw.UpdatedAt || new Date().toISOString(),
+  };
+}
+
+function normalizeClient(raw: any): Client {
+  return {
+    id: raw.id || raw.ID || '',
+    company_id: raw.company_id || raw.CompanyID || '',
+    name: raw.name || raw.Name || 'Sin Nombre',
+    tax_id: raw.tax_id !== undefined ? raw.tax_id : (raw.TaxID !== undefined ? raw.TaxID : null),
+    is_active: raw.is_active !== undefined ? raw.is_active : (raw.IsActive !== undefined ? raw.IsActive : true),
+    created_at: raw.created_at || raw.CreatedAt || new Date().toISOString(),
+    updated_at: raw.updated_at || raw.UpdatedAt || new Date().toISOString(),
+  };
+}
+
+function normalizeContract(raw: any): Contract {
+  return {
+    id: raw.id || raw.ID || '',
+    company_id: raw.company_id || raw.CompanyID || '',
+    client_id: raw.client_id || raw.ClientID || '',
+    reference: raw.reference || raw.Reference || raw.id || '',
+    starts_on: raw.starts_on !== undefined ? raw.starts_on : (raw.StartsOn !== undefined ? raw.StartsOn : null),
+    ends_on: raw.ends_on !== undefined ? raw.ends_on : (raw.EndsOn !== undefined ? raw.EndsOn : null),
+    is_active: raw.is_active !== undefined ? raw.is_active : (raw.IsActive !== undefined ? raw.IsActive : true),
+    created_at: raw.created_at || raw.CreatedAt || new Date().toISOString(),
+    updated_at: raw.updated_at || raw.UpdatedAt || new Date().toISOString(),
+  };
+}
+
 class ApiClient {
   private refreshPromise: Promise<LoginResponse> | null = null;
 
@@ -146,7 +207,8 @@ class ApiClient {
   // Platform Endpoints (platform_admin role)
   // ==========================================
   async listCompanies(accessToken: string): Promise<Company[]> {
-    return this.request<Company[]>('/platform/companies', { method: 'GET' }, accessToken);
+    const raw = await this.request<any[]>('/platform/companies', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeCompany) : [];
   }
 
   async createCompany(
@@ -199,14 +261,15 @@ class ApiClient {
   // Company Catalog: Vehicles (Flotas)
   // ==========================================
   async listVehicles(accessToken: string): Promise<Vehicle[]> {
-    return this.request<Vehicle[]>('/company/vehicles', { method: 'GET' }, accessToken);
+    const raw = await this.request<any[]>('/company/vehicles', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeVehicle) : [];
   }
 
   async createVehicle(
     accessToken: string,
     payload: { type: string; identifier: string }
   ): Promise<Vehicle> {
-    return this.request<Vehicle>(
+    const raw = await this.request<any>(
       '/company/vehicles',
       {
         method: 'POST',
@@ -214,6 +277,7 @@ class ApiClient {
       },
       accessToken
     );
+    return normalizeVehicle(raw);
   }
 
   async updateVehicle(
@@ -243,14 +307,15 @@ class ApiClient {
   // Company Catalog: Routes (Rutas)
   // ==========================================
   async listRoutes(accessToken: string): Promise<Route[]> {
-    return this.request<Route[]>('/company/routes', { method: 'GET' }, accessToken);
+    const raw = await this.request<any[]>('/company/routes', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeRoute) : [];
   }
 
   async createRoute(
     accessToken: string,
     payload: { origin: string; destination: string; distance_km?: number | null }
   ): Promise<Route> {
-    return this.request<Route>(
+    const raw = await this.request<any>(
       '/company/routes',
       {
         method: 'POST',
@@ -258,6 +323,7 @@ class ApiClient {
       },
       accessToken
     );
+    return normalizeRoute(raw);
   }
 
   async updateRoute(
@@ -287,14 +353,15 @@ class ApiClient {
   // Company Catalog: Clients (Clientes)
   // ==========================================
   async listClients(accessToken: string): Promise<Client[]> {
-    return this.request<Client[]>('/company/clients', { method: 'GET' }, accessToken);
+    const raw = await this.request<any[]>('/company/clients', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeClient) : [];
   }
 
   async createClient(
     accessToken: string,
     payload: { name: string; tax_id?: string | null }
   ): Promise<Client> {
-    return this.request<Client>(
+    const raw = await this.request<any>(
       '/company/clients',
       {
         method: 'POST',
@@ -302,6 +369,7 @@ class ApiClient {
       },
       accessToken
     );
+    return normalizeClient(raw);
   }
 
   async updateClient(
@@ -331,14 +399,15 @@ class ApiClient {
   // Company Catalog: Contracts (Contratos)
   // ==========================================
   async listContracts(accessToken: string): Promise<Contract[]> {
-    return this.request<Contract[]>('/company/contracts', { method: 'GET' }, accessToken);
+    const raw = await this.request<any[]>('/company/contracts', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeContract) : [];
   }
 
   async createContract(
     accessToken: string,
     payload: { client_id: string; reference: string; starts_on?: string | null; ends_on?: string | null }
   ): Promise<Contract> {
-    return this.request<Contract>(
+    const raw = await this.request<any>(
       '/company/contracts',
       {
         method: 'POST',
@@ -346,6 +415,7 @@ class ApiClient {
       },
       accessToken
     );
+    return normalizeContract(raw);
   }
 
   async updateContract(

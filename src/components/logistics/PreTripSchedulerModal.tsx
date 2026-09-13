@@ -296,11 +296,15 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#776de8]"
                     required
                   >
-                    {vehicles.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.type === 'truck' ? '🚛 Terrestre' : v.type === 'ship' ? '🚢 Marítimo' : '✈️ Aéreo'} — {v.identifier}
-                      </option>
-                    ))}
+                    {vehicles.length === 0 ? (
+                      <option value="">⚠️ Sin vehículos registrados</option>
+                    ) : (
+                      vehicles.map((v) => (
+                        <option key={v.id} value={v.id}>
+                          {v.type === 'truck' ? '🚛 Terrestre' : v.type === 'ship' ? '🚢 Marítimo' : '✈️ Aéreo'} — {v.identifier || v.id}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
 
@@ -315,11 +319,15 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#776de8]"
                     required
                   >
-                    {routes.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.origin} ➔ {r.destination} ({r.distance_km || 0} km)
-                      </option>
-                    ))}
+                    {routes.length === 0 ? (
+                      <option value="">⚠️ Sin rutas registradas</option>
+                    ) : (
+                      routes.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.origin} ➔ {r.destination} ({r.distance_km || 0} km)
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
 
@@ -335,9 +343,15 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
                       className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#776de8]"
                       required
                     >
-                      {clients.map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
+                      {clients.length === 0 ? (
+                        <option value="">⚠️ Sin clientes registrados</option>
+                      ) : (
+                        clients.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
+                        ))
+                      )}
                     </select>
                   </div>
                   <div>
@@ -353,7 +367,7 @@ export const PreTripSchedulerModal: React.FC<PreTripSchedulerModalProps> = ({
                       {contracts
                         .filter((ct) => !clientId || ct.client_id === clientId)
                         .map((ct) => (
-                          <option key={ct.id} value={ct.id}>{ct.reference}</option>
+                          <option key={ct.id} value={ct.id}>{ct.reference || ct.id}</option>
                         ))}
                     </select>
                   </div>
