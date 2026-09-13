@@ -22,6 +22,18 @@ import type {
   PreTripProjectionResponse,
   CreateTripPayload,
 } from '../types/logistics';
+import type {
+  BankAccount,
+  Invoice,
+  Expense,
+  CashAlert,
+  CashFlowProjection,
+  CreateBankAccountPayload,
+  CreateInvoicePayload,
+  RecordInvoicePaymentPayload,
+  CreateExpensePayload,
+  PayExpensePayload,
+} from '../types/treasury';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.cargovigil.tech';
 
@@ -83,6 +95,81 @@ function normalizeContract(raw: any): Contract {
     is_active: raw.is_active !== undefined ? raw.is_active : (raw.IsActive !== undefined ? raw.IsActive : true),
     created_at: raw.created_at || raw.CreatedAt || new Date().toISOString(),
     updated_at: raw.updated_at || raw.UpdatedAt || new Date().toISOString(),
+  };
+}
+
+function normalizeBankAccount(raw: any): BankAccount {
+  return {
+    id: raw.id || raw.ID || '',
+    company_id: raw.company_id || raw.CompanyID || '',
+    bank_name: raw.bank_name || raw.BankName || '',
+    account_number_mask: raw.account_number_mask || raw.AccountNumberMask || '',
+    currency: (raw.currency || raw.Currency || 'MXN').toUpperCase() as any,
+    current_balance: Number(raw.current_balance !== undefined ? raw.current_balance : (raw.CurrentBalance || 0)),
+    minimum_required_balance: Number(raw.minimum_required_balance !== undefined ? raw.minimum_required_balance : (raw.MinimumRequiredBalance || 0)),
+    is_active: raw.is_active !== undefined ? raw.is_active : (raw.IsActive !== undefined ? raw.IsActive : true),
+    created_at: raw.created_at || raw.CreatedAt || new Date().toISOString(),
+    updated_at: raw.updated_at || raw.UpdatedAt || new Date().toISOString(),
+  };
+}
+
+function normalizeInvoice(raw: any): Invoice {
+  return {
+    id: raw.id || raw.ID || '',
+    company_id: raw.company_id || raw.CompanyID || '',
+    trip_id: raw.trip_id !== undefined ? raw.trip_id : (raw.TripID !== undefined ? raw.TripID : null),
+    client_id: raw.client_id || raw.ClientID || '',
+    bank_account_id: raw.bank_account_id !== undefined ? raw.bank_account_id : (raw.BankAccountID !== undefined ? raw.BankAccountID : null),
+    invoice_number: raw.invoice_number || raw.InvoiceNumber || '',
+    issue_date: raw.issue_date || raw.IssueDate || '',
+    due_date: raw.due_date || raw.DueDate || '',
+    adjusted_due_date: raw.adjusted_due_date || raw.AdjustedDueDate || raw.due_date || raw.DueDate || '',
+    total_amount: Number(raw.total_amount !== undefined ? raw.total_amount : (raw.TotalAmount || 0)),
+    paid_amount: Number(raw.paid_amount !== undefined ? raw.paid_amount : (raw.PaidAmount || 0)),
+    status: (raw.status || raw.Status || 'draft').toLowerCase() as any,
+    created_at: raw.created_at || raw.CreatedAt || new Date().toISOString(),
+    updated_at: raw.updated_at || raw.UpdatedAt || new Date().toISOString(),
+  };
+}
+
+function normalizeExpense(raw: any): Expense {
+  return {
+    id: raw.id || raw.ID || '',
+    company_id: raw.company_id || raw.CompanyID || '',
+    trip_id: raw.trip_id !== undefined ? raw.trip_id : (raw.TripID !== undefined ? raw.TripID : null),
+    bank_account_id: raw.bank_account_id !== undefined ? raw.bank_account_id : (raw.BankAccountID !== undefined ? raw.BankAccountID : null),
+    category: (raw.category || raw.Category || 'other').toLowerCase() as any,
+    description: raw.description || raw.Description || '',
+    amount: Number(raw.amount !== undefined ? raw.amount : (raw.Amount || 0)),
+    due_date: raw.due_date || raw.DueDate || '',
+    paid_date: raw.paid_date !== undefined ? raw.paid_date : (raw.PaidDate !== undefined ? raw.PaidDate : null),
+    status: (raw.status || raw.Status || 'pending').toLowerCase() as any,
+    created_at: raw.created_at || raw.CreatedAt || new Date().toISOString(),
+    updated_at: raw.updated_at || raw.UpdatedAt || new Date().toISOString(),
+  };
+}
+
+function normalizeCashAlert(raw: any): CashAlert {
+  return {
+    id: raw.id || raw.ID || '',
+    company_id: raw.company_id || raw.CompanyID || '',
+    projected_date: raw.projected_date || raw.ProjectedDate || '',
+    severity: (raw.severity || raw.Severity || 'warning').toLowerCase() as any,
+    projected_deficit: Number(raw.projected_deficit !== undefined ? raw.projected_deficit : (raw.ProjectedDeficit || 0)),
+    description: raw.description || raw.Description || '',
+    is_resolved: raw.is_resolved !== undefined ? raw.is_resolved : (raw.IsResolved !== undefined ? raw.IsResolved : false),
+    created_at: raw.created_at || raw.CreatedAt || new Date().toISOString(),
+    updated_at: raw.updated_at || raw.UpdatedAt || new Date().toISOString(),
+  };
+}
+
+function normalizeCashFlowProjection(raw: any): CashFlowProjection {
+  return {
+    id: raw.id || raw.ID || '',
+    company_id: raw.company_id || raw.CompanyID || '',
+    projected_date: raw.projected_date || raw.ProjectedDate || '',
+    projected_balance: Number(raw.projected_balance !== undefined ? raw.projected_balance : (raw.ProjectedBalance || 0)),
+    generated_at: raw.generated_at || raw.GeneratedAt || new Date().toISOString(),
   };
 }
 
@@ -496,6 +583,209 @@ class ApiClient {
 
   async getFuelIndexes(accessToken: string): Promise<FuelIndex[]> {
     return this.request<FuelIndex[]>('/logistics/fuel-indexes', { method: 'GET' }, accessToken);
+  }
+
+  // ==========================================
+  // Treasury: Bank Accounts (Cuentas Bancarias)
+  // ==========================================
+  async listBankAccounts(accessToken: string): Promise<BankAccount[]> {
+    const raw = await this.request<any[]>('/treasury/bank-accounts', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeBankAccount) : [];
+  }
+
+  async createBankAccount(
+    accessToken: string,
+    payload: CreateBankAccountPayload
+  ): Promise<BankAccount> {
+    const raw = await this.request<any>(
+      '/treasury/bank-accounts',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+    return normalizeBankAccount(raw);
+  }
+
+  async updateBankAccount(
+    accessToken: string,
+    id: string,
+    payload: Partial<CreateBankAccountPayload>
+  ): Promise<void> {
+    await this.request(
+      `/treasury/bank-accounts/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+  }
+
+  async deleteBankAccount(accessToken: string, id: string): Promise<void> {
+    await this.request(
+      `/treasury/bank-accounts/${id}`,
+      { method: 'DELETE' },
+      accessToken
+    );
+  }
+
+  // ==========================================
+  // Treasury: Invoices (Cuentas por Cobrar)
+  // ==========================================
+  async listInvoices(accessToken: string): Promise<Invoice[]> {
+    const raw = await this.request<any[]>('/treasury/invoices', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeInvoice) : [];
+  }
+
+  async createInvoice(
+    accessToken: string,
+    payload: CreateInvoicePayload
+  ): Promise<Invoice> {
+    const raw = await this.request<any>(
+      '/treasury/invoices',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+    return normalizeInvoice(raw);
+  }
+
+  async updateInvoice(
+    accessToken: string,
+    id: string,
+    payload: Partial<CreateInvoicePayload>
+  ): Promise<void> {
+    await this.request(
+      `/treasury/invoices/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+  }
+
+  async deleteInvoice(accessToken: string, id: string): Promise<void> {
+    await this.request(
+      `/treasury/invoices/${id}`,
+      { method: 'DELETE' },
+      accessToken
+    );
+  }
+
+  async recordInvoicePayment(
+    accessToken: string,
+    id: string,
+    payload: RecordInvoicePaymentPayload
+  ): Promise<void> {
+    await this.request(
+      `/treasury/invoices/${id}/payments`,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+  }
+
+  // ==========================================
+  // Treasury: Expenses (Cuentas por Pagar)
+  // ==========================================
+  async listExpenses(accessToken: string): Promise<Expense[]> {
+    const raw = await this.request<any[]>('/treasury/expenses', { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeExpense) : [];
+  }
+
+  async createExpense(
+    accessToken: string,
+    payload: CreateExpensePayload
+  ): Promise<Expense> {
+    const raw = await this.request<any>(
+      '/treasury/expenses',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+    return normalizeExpense(raw);
+  }
+
+  async updateExpense(
+    accessToken: string,
+    id: string,
+    payload: Partial<CreateExpensePayload>
+  ): Promise<void> {
+    await this.request(
+      `/treasury/expenses/${id}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+  }
+
+  async deleteExpense(accessToken: string, id: string): Promise<void> {
+    await this.request(
+      `/treasury/expenses/${id}`,
+      { method: 'DELETE' },
+      accessToken
+    );
+  }
+
+  async markExpensePaid(
+    accessToken: string,
+    id: string,
+    payload: PayExpensePayload
+  ): Promise<void> {
+    await this.request(
+      `/treasury/expenses/${id}/pay`,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      },
+      accessToken
+    );
+  }
+
+  // ==========================================
+  // Treasury: Cash Flow Forecast (Pronóstico)
+  // ==========================================
+  async getForecast(accessToken: string, days: number = 30): Promise<CashFlowProjection[]> {
+    const raw = await this.request<any[]>(`/treasury/forecast?days=${days}`, { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeCashFlowProjection) : [];
+  }
+
+  async recalculateForecast(accessToken: string): Promise<void> {
+    await this.request(
+      '/treasury/forecast/recalculate',
+      { method: 'POST' },
+      accessToken
+    );
+  }
+
+  // ==========================================
+  // Treasury: Liquidity Alerts (Alertas de Liquidez)
+  // ==========================================
+  async listAlerts(accessToken: string, resolved: boolean = false): Promise<CashAlert[]> {
+    const raw = await this.request<any[]>(`/treasury/alerts?resolved=${resolved}`, { method: 'GET' }, accessToken);
+    return Array.isArray(raw) ? raw.map(normalizeCashAlert) : [];
+  }
+
+  async setAlertResolved(accessToken: string, id: string, resolved: boolean): Promise<void> {
+    await this.request(
+      `/treasury/alerts/${id}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ is_resolved: resolved }),
+      },
+      accessToken
+    );
   }
 }
 

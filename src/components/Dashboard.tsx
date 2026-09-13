@@ -6,6 +6,7 @@ import { RoutesManager } from './catalog/RoutesManager';
 import { ClientsManager } from './catalog/ClientsManager';
 import { ContractsManager } from './catalog/ContractsManager';
 import { TeammatesManager } from './catalog/TeammatesManager';
+import { TreasuryDashboard } from './treasury/TreasuryDashboard';
 import {
   ShieldCheck,
   ShieldAlert,
@@ -21,6 +22,7 @@ import {
   FileText,
   Building2,
   Compass,
+  Landmark,
 } from 'lucide-react';
 import { LogisticsLiveRadarView } from './logistics/LogisticsLiveRadarView';
 
@@ -32,23 +34,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
   const { user, logoutAll } = useAuth();
   const isPlatformAdmin = user?.role_name === 'platform_admin';
   const isAdmin = user?.role_name === 'admin';
+  const isFinance = user?.role_name === 'finance';
+  const canAccessTreasury = isAdmin || isFinance;
 
   // Active Tab state
-  const [activeTab, setActiveTab] = useState<string>(
-    isPlatformAdmin ? 'platform' : 'vehicles'
-  );
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (isPlatformAdmin) return 'platform';
+    if (isFinance) return 'treasury';
+    return 'radar';
+  });
 
   React.useEffect(() => {
     if (isPlatformAdmin) {
       if (activeTab !== 'platform' && activeTab !== 'security') {
         setActiveTab('platform');
       }
+    } else if (isFinance && !isAdmin) {
+      if (activeTab === 'platform' || activeTab === 'teammates') {
+        setActiveTab('treasury');
+      }
     } else {
       if (activeTab === 'platform') {
-        setActiveTab('vehicles');
+        setActiveTab('radar');
       }
     }
-  }, [isPlatformAdmin]);
+  }, [isPlatformAdmin, isFinance, isAdmin]);
 
   const formattedDate = user?.created_at
     ? new Date(user.created_at).toLocaleString()
@@ -175,6 +185,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
               <span>Radar & Mapa en Vivo</span>
             </button>
 
+            {canAccessTreasury && (
+              <button
+                onClick={() => setActiveTab('treasury')}
+                className={`px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shrink-0 ${
+                  activeTab === 'treasury'
+                    ? 'bg-gradient-to-r from-[#776de8] to-indigo-600 text-white shadow-lg shadow-[#776de8]/30'
+                    : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
+                }`}
+              >
+                <Landmark className="w-4 h-4 text-emerald-400" />
+                <span>Tesorería & Flujo 30D</span>
+              </button>
+            )}
+
             <button
               onClick={() => setActiveTab('vehicles')}
               className={`px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shrink-0 ${
@@ -255,6 +279,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenSecurity }) => {
       {/* Main Tab Content */}
       <div className="transition-all duration-200">
         {activeTab === 'radar' && !isPlatformAdmin && <LogisticsLiveRadarView />}
+        {activeTab === 'treasury' && canAccessTreasury && <TreasuryDashboard />}
         {activeTab === 'platform' && isPlatformAdmin && <PlatformCompaniesView />}
         {activeTab === 'vehicles' && !isPlatformAdmin && <VehiclesManager />}
         {activeTab === 'routes' && !isPlatformAdmin && <RoutesManager />}
