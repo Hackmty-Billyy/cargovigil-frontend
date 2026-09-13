@@ -1,13 +1,9 @@
 import React from 'react';
 import {
   Truck,
-  Shield,
-  Radio,
-  CheckCircle2,
   Mail,
   Phone,
   MapPin,
-  Check,
   ArrowRight,
   Activity,
   DollarSign,
